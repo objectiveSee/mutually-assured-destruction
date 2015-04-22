@@ -1,9 +1,11 @@
 
 #include <Arduino.h>
 #include "Relay.h"
+#include "Lights.h"
 
 static Relay * r0 = 0;
 static Relay * r1 = 0;
+static Lights * lights = 0;
 
 void relay_loop();
 void relay_setup();
@@ -11,6 +13,8 @@ void relay_setup();
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
+#define NEOPIXEL_PIN 11
+#define NEOPIXEL_COUNT 16
 
 
 void setup() {
@@ -21,6 +25,8 @@ void setup() {
 	delay(2500);
 	digitalWrite(LED, LOW);
 	delay(2500);
+
+	lights = new Lights(NEOPIXEL_PIN, NEOPIXEL_COUNT);
 }
 
 void loop() {
