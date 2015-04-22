@@ -13,12 +13,15 @@ void relay_setup();
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
-#define NEOPIXEL_PIN 11
-#define NEOPIXEL_COUNT 16
+#define NEOPIXEL_PIN 8
+#define NEOPIXEL_COUNT 12
 
 
 void setup() {
   // put your setup code here, to run once:
+
+	Serial.begin(9600); 
+	
 	relay_setup();
 
 	digitalWrite(LED, HIGH);
@@ -32,7 +35,22 @@ void setup() {
 void loop() {
 
   // put your main code here, to run repeatedly:
-  relay_loop();
+  relay_test();
+
+  // blink every second
+  // unsigned long second = (unsigned long)((float)millis() / 1000);
+  // if ( second % 2) {
+	// digitalWrite(LED, HIGH); 	
+  // } else {
+ 	// digitalWrite(LED, LOW);
+  // }
+  // Serial.println("Second is");
+  // Serial.println);
+  Serial.println("Looping!\n");
+
+
+  lights->loop();
+  delay(100);
 }
 
 #define INTERVAL 2000
@@ -46,6 +64,17 @@ void rapid_fire (unsigned long delayTime) {
 		r0->off();
 	  	r1->on();
 	  	delay(delayTime);
+	}
+}
+
+void relay_test () {
+	unsigned long second = millis()/1000;
+	if ( second % 3 ) {
+		r0->on();
+		r1->on();
+	} else {
+		r0->off();
+		r1->off();		
 	}
 }
 
