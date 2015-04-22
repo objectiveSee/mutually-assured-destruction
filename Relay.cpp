@@ -1,11 +1,16 @@
 #include <Arduino.h>
 #include "Relay.h"
 
+// Relay is active low, so you need a 0 to turn it on. 
+#define RELAY_ON 0
+#define RELAY_OFF 1
+
 Relay::Relay( int whatPin )
 {
   // initialize variables
   pin = whatPin;
   run = 0;
+  last_changed = millis();
 
 
   // initialize physical objects
@@ -13,7 +18,7 @@ Relay::Relay( int whatPin )
 
   // don't forget that we don't know the state of the pin
   // so give it one
-  digitalWrite( pin, LOW );
+  digitalWrite( pin, RELAY_OFF );
 }
 
 void Relay::on()
@@ -21,19 +26,26 @@ void Relay::on()
   if( ! run )
   {
     run = 1;
-    digitalWrite( pin, HIGH );
     last_changed = millis();
   }
+  digitalWrite( pin, RELAY_ON );
 
 }
 
 void Relay::off()
 {
   if ( run ) {
-        last_changed = millis();
+    run = 0;
+    last_changed = millis();
   }
-  run = 0;
-  digitalWrite( pin, LOW);
+  digitalWrite( pin, RELAY_OFF );
+}
+
+unsigned long Relay::time_running() {
+  if ( run ) {
+    return millis() - last_changed;
+  }
+  return 0;
 }
 
 int Relay::running()

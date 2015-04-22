@@ -13,6 +13,7 @@ class Relay
     void on();
     void off();
     int running();
+    unsigned long time_running();
 };
 
 #endif

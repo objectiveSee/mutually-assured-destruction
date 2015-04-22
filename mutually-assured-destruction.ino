@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #include "Relay.h"
 
-static Relay * r0;
-static Relay * r1;
+static Relay * r0 = 0;
+static Relay * r1 = 0;
 
 void relay_loop();
 void relay_setup();
@@ -29,23 +29,35 @@ void loop() {
   relay_loop();
 }
 
+#define INTERVAL 2000
+
+void rapid_fire (unsigned long delayTime) {
+
+	for ( int i = 0; i < 1; i++ ) {
+		r0->on();
+	  	r1->off();
+	  	delay(delayTime);
+		r0->off();
+	  	r1->on();
+	  	delay(delayTime);
+	}
+}
+
 void relay_loop() {
-  r0->on();
-  r1->off();
-  delay(1000);
-  r0->off();
-  r1->on();
-  delay(1000);
+
+	static unsigned long d = 100;
+
+	rapid_fire(d);
+
+	d+= 100;
+	if ( d > 700 ) {
+		d = 100;
+	}
+
 }
 
 void relay_setup() {
 
 	r0 = new Relay(RELAY_0_PIN);
 	r1 = new Relay(RELAY_1_PIN);
-
-	pinMode(RELAY_0_PIN, OUTPUT);
-	pinMode(RELAY_1_PIN, OUTPUT);
-
-	digitalWrite(RELAY_0_PIN, 0);
-	digitalWrite(RELAY_1_PIN, 0);
 }
