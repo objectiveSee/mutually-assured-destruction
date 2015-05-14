@@ -44,7 +44,7 @@ void Lights::loop()
   for ( int i = 0; i < numLights; i++ ) {
 
     Serial.println(second);
-    color c = strip->Color(44, (second%2)?44:0,0);
+    color c = strip->Color(11, (second%2)?11:0,0);
     strip->setPixelColor(i, c);
   }
   strip->show();
