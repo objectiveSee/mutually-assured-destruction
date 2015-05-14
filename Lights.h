@@ -1,7 +1,7 @@
 #ifndef Lights_h
 #define Lights_h
 
-// class Adafruit_NeoPixel;  // forward declaration of a class
+//class Adafruit_NeoPixel;  // forward declaration of a class
 
 class Lights
 {
@@ -13,6 +13,7 @@ class Lights
     Lights( int , int);
     int test();
     void loop();
+    void off();
 };
 
 #endif

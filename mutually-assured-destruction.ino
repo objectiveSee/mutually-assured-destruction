@@ -1,11 +1,15 @@
 
 #include <Arduino.h>
+#include <IRLib.h>
+
 #include "Relay.h"
 #include "Lights.h"
+#include "RemoteControl.h"
 
 static Relay * r0 = 0;
 static Relay * r1 = 0;
 static Lights * lights = 0;
+static RemoteControl * remote = 0;
 
 void relay_loop();
 void relay_setup();
@@ -30,12 +34,27 @@ void setup() {
 	delay(2500);
 
 	lights = new Lights(NEOPIXEL_PIN, NEOPIXEL_COUNT);
+
+        remote = new RemoteControl(-1);  // note pin is specified in class
+        
 }
 
 void loop() {
 
   // put your main code here, to run repeatedly:
-  relay_test();
+//  relay_test();
+  
+  remote->loop();
+  
+  if ( remote->last_command == RemoteCommandStop ) {
+    
+    r0->off();
+    r1->off();
+    lights->off();
+    
+  } else if ( remote->last_command == RemoteCommandStart ) {
+    
+  }
 
   // blink every second
   // unsigned long second = (unsigned long)((float)millis() / 1000);
@@ -46,11 +65,8 @@ void loop() {
   // }
   // Serial.println("Second is");
   // Serial.println);
-  Serial.println("Looping!\n");
-
-
-  lights->loop();
-  delay(100);
+//  lights->loop();
+//  delay(100);
 }
 
 #define INTERVAL 2000

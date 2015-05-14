@@ -3,11 +3,7 @@
 #include "Adafruit_NeoPixel.h"
 
 typedef uint32_t color;
-
-// Lights is active low, so you need a 0 to turn it on. 
-
 Adafruit_NeoPixel *strip ;
-
 
 Lights::Lights( int whatPin, int countLights )
 {
@@ -52,6 +48,16 @@ void Lights::loop()
     Serial.println("Looping too!!\n");    
   }
 }
+
+void Lights::off()
+{
+  for ( int i = 0; i < numLights; i++ ) {
+    color c = strip->Color(0,0,0);
+    strip->setPixelColor(i, c);
+  }
+  strip->show();
+}
+  
 
 int Lights::test()
 {
