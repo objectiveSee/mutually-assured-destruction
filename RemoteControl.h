@@ -4,7 +4,12 @@
 typedef enum  { 
   RemoteCommandNone = 0,
   RemoteCommandStop,
-  RemoteCommandStart
+  RemoteCommandStart,
+  RemoteCommandLeft,
+  RemoteCommandRight,
+  RemoteCommandBoth,
+  RemoteCommandUp,
+  RemoteCommandDown
 } RemoteCommand;
 
 class RemoteControl
@@ -20,6 +25,7 @@ class RemoteControl
     RemoteCommand last_command;
     RemoteControl( int );
     RemoteCommand loop();
+    void clearCommand();
     // void off();
     // int running();
     // unsigned long time_running();

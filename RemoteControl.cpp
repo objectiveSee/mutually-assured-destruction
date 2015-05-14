@@ -22,20 +22,33 @@ RemoteCommand RemoteControl::loop() {
   if (My_Receiver.GetResults(&My_Decoder)) {
    
     My_Decoder.decode();		//Decode the data
-    My_Decoder.DumpResults();	//Show the results on serial monitor
+    //My_Decoder.DumpResults();	//Show the results on serial monitor
 
    if (My_Decoder.decode_type== NEC) {
      
        switch(My_Decoder.value) {
+         
         case 0xFD609F:  //Stop button
           r = RemoteCommandStop; 
           break;
+          
+        case 0xFD807F: // Play
         case 0xFD20DF: // Setup
           r = RemoteCommandStart;
-        case 0xfd807f:  //Play/Pause
           break;
-        case 0xfd40bf:  //Volume Up
+          
+        case 0xFD10EF:
+          r = RemoteCommandLeft;
           break;
+          
+        case 0xFD50AF:
+           r = RemoteCommandRight;
+          break;
+          
+        case 0xFD906F:
+          r = RemoteCommandBoth;
+          break;
+
         case 0xFFFFFFFF:  // repeat last
           r = last_command;
           break;
@@ -48,6 +61,10 @@ RemoteCommand RemoteControl::loop() {
   last_command = r;
   
   return r;
+}
+
+void RemoteControl::clearCommand() {
+  last_command = RemoteCommandNone;
 }
 
 #pragma mark - Private

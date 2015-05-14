@@ -4,6 +4,7 @@
 // Relay is active low, so you need a 0 to turn it on. 
 #define RELAY_ON 0
 #define RELAY_OFF 1
+#define MAX_TIME_ON 4000
 
 Relay::Relay( int whatPin )
 {
@@ -11,6 +12,7 @@ Relay::Relay( int whatPin )
   pin = whatPin;
   run = 0;
   last_changed = millis();
+  duration_on = 0;
 
 
   // initialize physical objects
@@ -38,6 +40,7 @@ void Relay::off()
     run = 0;
     last_changed = millis();
   }
+  duration_on = 0;
   digitalWrite( pin, RELAY_OFF );
 }
 
@@ -53,3 +56,56 @@ int Relay::running()
   return run;
 
 }
+
+#pragma mark - Should be in Subclass for Fire Relay
+
+void Relay::loop() {
+  
+  unsigned long now = millis();
+  
+  if ( run ) {
+    
+   Serial.print(time_running());
+   Serial.println("ms running");
+    
+   if ( duration_on && now > last_changed + duration_on ) {
+     
+     Serial.println("Duration expired on Relay. Turning off now");
+     off();
+     
+   } else if ( run && time_running() > MAX_TIME_ON ) {
+     
+     Serial.println("Relay left on for too long. Turning off now");
+     off(); 
+
+   } else {
+     if ( duration_on ) {
+       unsigned long time_remaining = last_changed + duration_on - now;
+       Serial.print(time_remaining);
+       Serial.println("ms remaining");
+     }
+   }
+   
+   
+ } 
+}
+
+void Relay::setOnForDuration( unsigned long duration ) {
+  
+  on();
+  duration_on = duration; 
+ 
+ last_changed = millis();     // in case we were already on, we want a better value for last_changed 
+  
+  Serial.print("Relay on with a duration = ");
+  Serial.print(duration);
+  Serial.println(" ms");
+  
+}
+
+
+
+
+
+
+

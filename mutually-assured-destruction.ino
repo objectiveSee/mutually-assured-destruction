@@ -14,17 +14,22 @@ static RemoteControl * remote = 0;
 void relay_loop();
 void relay_setup();
 
+boolean stopped = 0;
+
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
 #define NEOPIXEL_PIN 8
 #define NEOPIXEL_COUNT 12
 
+#define FIRE_BURST_SHORT_DURATION 200
+
 
 void setup() {
   // put your setup code here, to run once:
 
 	Serial.begin(9600); 
+        Serial.println("It's a MAD World!");
 	
 	relay_setup();
 
@@ -45,15 +50,46 @@ void loop() {
 //  relay_test();
   
   remote->loop();
-  
+  boolean c = true;
+    
   if ( remote->last_command == RemoteCommandStop ) {
     
+    stopped = 1;
     r0->off();
     r1->off();
     lights->off();
     
-  } else if ( remote->last_command == RemoteCommandStart ) {
+  } else if ( remote->last_command == RemoteCommandStart ) {  
+ 
+     stopped = 0;
     
+  }
+  
+  if (!stopped) {
+    if ( remote->last_command == RemoteCommandLeft ) {    
+      Serial.println("Relay 0 OnForDuration");
+      r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+      
+    } else if ( remote->last_command == RemoteCommandRight ) {
+   
+      Serial.println("Relay 1 OnForDuration");
+      r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+
+    } else if ( remote->last_command == RemoteCommandBoth ) {
+   
+      Serial.println("Both Relays OnForDuration");
+      r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+      r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+      
+    }   
+  }
+  
+  r0->loop();
+  r1->loop();
+  
+  if ( c ) {
+   // clear last command 
+   remote->clearCommand();
   }
 
   // blink every second
@@ -111,4 +147,7 @@ void relay_setup() {
 
 	r0 = new Relay(RELAY_0_PIN);
 	r1 = new Relay(RELAY_1_PIN);
+
+  r0->off();
+  r1->off();
 }
