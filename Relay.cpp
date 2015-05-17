@@ -21,6 +21,8 @@ Relay::Relay( int whatPin )
   // don't forget that we don't know the state of the pin
   // so give it one
   digitalWrite( pin, RELAY_OFF );
+  
+  off();
 }
 
 void Relay::on()
