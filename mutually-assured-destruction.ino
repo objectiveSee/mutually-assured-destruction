@@ -19,28 +19,30 @@ boolean stopped = 0;
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
-#define NEOPIXEL_PIN 8
+#define NEOPIXEL_PIN_A 8
+#define NEOPIXEL_PIN_B -1
 #define NEOPIXEL_COUNT 12
-
 #define FIRE_BURST_SHORT_DURATION 200
-
 
 void setup() {
   // put your setup code here, to run once:
 
 	Serial.begin(9600); 
-        Serial.println("It's a MAD World!");
 	
 	relay_setup();
 
-	digitalWrite(LED, HIGH);
-	delay(2500);
-	digitalWrite(LED, LOW);
-	delay(2500);
+        Serial.println("It's a MAD World!");
 
-	lights = new Lights(NEOPIXEL_PIN, NEOPIXEL_COUNT);
+	digitalWrite(LED, HIGH);
+	delay(1000);
+	digitalWrite(LED, LOW);
+	delay(1000);
+
+	lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
+        lights->on();
 
         remote = new RemoteControl(-1);  // note pin is specified in class
+        
         
 }
 
@@ -62,6 +64,7 @@ void loop() {
   } else if ( remote->last_command == RemoteCommandStart ) {  
  
      stopped = 0;
+     lights->on();
     
   }
   
@@ -86,6 +89,7 @@ void loop() {
   
   r0->loop();
   r1->loop();
+  lights->loop();
   
   if ( c ) {
    // clear last command 
