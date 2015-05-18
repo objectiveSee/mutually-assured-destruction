@@ -1,7 +1,11 @@
 
 #include <Arduino.h>
 #include <IRLib.h>
+#include <Wire.h>
+#include <Adafruit_MMA8451.h>
+#include <Adafruit_Sensor.h>
 
+#include "Accelerometer.h"
 #include "Relay.h"
 #include "Lights.h"
 #include "RemoteControl.h"
@@ -10,6 +14,7 @@ static Relay * r0 = 0;
 static Relay * r1 = 0;
 static Lights * lights = 0;
 static RemoteControl * remote = 0;
+static Accelerometer * accelerometer = 0;
 
 void relay_loop();
 void relay_setup();
@@ -29,21 +34,23 @@ void setup() {
 
 	Serial.begin(9600); 
 	
+        // call before delay because relays are active low so we want to set to be HIGH as soon as possible
 	relay_setup();
-
-        Serial.println("It's a MAD World!");
 
 	digitalWrite(LED, HIGH);
 	delay(1000);
 	digitalWrite(LED, LOW);
 	delay(1000);
 
-	lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
-        lights->on();
+  Serial.println("It's a MAD World!");
 
-        remote = new RemoteControl(-1);  // note pin is specified in class
-        
-        
+  accelerometer = new Accelerometer();
+  accelerometer->setup();
+
+	lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
+  lights->on();
+
+  remote = new RemoteControl(-1);  // note pin is specified in class        
 }
 
 void loop() {
@@ -51,7 +58,15 @@ void loop() {
   // put your main code here, to run repeatedly:
 //  relay_test();
   
+//  updateAccelerometer();
+  // accelerometer_log();
+  
+  accelerometer->loop();
   remote->loop();
+
+  // accelerometer->log();
+
+  // indicates whether we should clear last command
   boolean c = true;
     
   if ( remote->last_command == RemoteCommandStop ) {
