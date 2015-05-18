@@ -3,23 +3,24 @@
 #include "Adafruit_NeoPixel.h"
 
 typedef uint32_t color;
-Adafruit_NeoPixel *strip ;
+Adafruit_NeoPixel *stripA;
+Adafruit_NeoPixel *stripB;
 
-Lights::Lights( int whatPin, int countLights )
+Lights::Lights( int pA, int pB, int countLights )
 {
   // initialize variables
-  pin = whatPin;
+  pinA = pA;
+  pinB = pB;
   numLights = countLights;
+  numLights_perStrip = numLights * 2;
 
-  strip = new Adafruit_NeoPixel(60, whatPin, NEO_GRB + NEO_KHZ800);
-
-  strip->begin();
-
-  for ( int i = 0; i < numLights; i++ ) {
-    color c = strip->Color(10, 0,0);
-    strip->setPixelColor(i, c);
-  }
-  strip->show();
+  stripA = new Adafruit_NeoPixel(60, pinA, NEO_GRB + NEO_KHZ800);
+  stripB = new Adafruit_NeoPixel(60, pinB, NEO_GRB + NEO_KHZ800);
+  
+  stripA->begin();
+  stripB->begin();
+  
+  isOn = 0; 
 
   // run = 0;
   // last_changed = millis();
@@ -32,35 +33,44 @@ Lights::Lights( int whatPin, int countLights )
   // // so give it one
   // digitalWrite( pin, Lights_OFF );
 }
-//unsigned long millis
-void Lights::loop()
-{
-  unsigned long second = millis()/1000;
 
-  for ( int i = 0; i < numLights; i++ ) {
+void Lights::loop() {   
+}
 
-    Serial.println(second);
-    color c = strip->Color(11, (second%2)?11:0,0);
-    strip->setPixelColor(i, c);
+
+void Lights::setPixelColor(uint16_t n, uint32_t c) {
+  if ( n >= numLights_perStrip ) { 
+    stripB->setPixelColor( n - numLights_perStrip, c);
+  } else {
+    stripA->setPixelColor( n, c);
   }
-  strip->show();
-  if ( strip ) {
-    Serial.println("Looping too!!\n");    
+}
+
+void Lights::show() { 
+  if ( isOn ) {
+    stripA->show();
+    stripB->show();
   }
+}
+
+void Lights::test() {  
+}
+
+void Lights::on() { 
+  isOn = 1;
 }
 
 void Lights::off()
 {
   for ( int i = 0; i < numLights; i++ ) {
-    color c = strip->Color(0,0,0);
-    strip->setPixelColor(i, c);
+    color c = stripA->Color(0,0,0);
+    setPixelColor(i, c);
   }
-  strip->show();
+  isOn = 0;
+  show();
 }
-  
 
-int Lights::test()
-{
-  return pin;
-
+void Lights::shoot( int direction ) {  
 }
+
+

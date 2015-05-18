@@ -6,14 +6,23 @@
 class Lights
 {
   private:
-    int pin;  // what pin is the heater Lights on
+    int pinA;
+    int pinB;
+    int numLights_perStrip;
     int numLights;
+    int isOn;
+    
+    // Abstracting Neopixel Library
+    void setPixelColor(uint16_t n, uint32_t c);
+    void show();
 
   public:
-    Lights( int , int);
-    int test();
+    Lights( int, int, int );
+    void test();
     void loop();
     void off();
+    void on();
+    void shoot( int direction );
 };
 
 #endif
