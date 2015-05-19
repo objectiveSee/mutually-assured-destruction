@@ -6,6 +6,8 @@
 #define RELAY_OFF 1
 #define MAX_TIME_ON 1000
 
+#define MAD_RELAY_LOGGING 1
+
 Relay::Relay( int whatPin )
 {
   // initialize variables
@@ -65,30 +67,38 @@ void Relay::loop() {
   unsigned long now = millis();
   
   if ( run ) {
+
+#if MAD_RELAY_LOGGING
+  Serial.print(time_running());
+  Serial.println("ms running");
+#endif
     
-   Serial.print(time_running());
-   Serial.println("ms running");
-    
-   if ( duration_on && now > last_changed + duration_on ) {
+  if ( duration_on && now > last_changed + duration_on ) {
      
-     Serial.println("Duration expired on Relay. Turning off now");
-     off();
+#if MAD_RELAY_LOGGING
+    Serial.println("Duration expired on Relay. Turning off now");
+#endif
+    off();
      
    } else if ( run && ( time_running() > MAX_TIME_ON ) ) {
      
-     Serial.println("Relay left on for too long. Turning off now");
-     off(); 
+#if MAD_RELAY_LOGGING
+    Serial.println("Relay left on for too long. Turning off now");
+#endif
+    off(); 
 
-   } else {
-     if ( duration_on ) {
-       unsigned long time_remaining = last_changed + duration_on - now;
-       Serial.print(time_remaining);
-       Serial.println("ms remaining");
-     }
-   }
-   
-   
- } 
+  } else {
+
+#if MAD_RELAY_LOGGING
+    if ( duration_on ) {
+      unsigned long time_remaining = last_changed + duration_on - now;
+      Serial.print(time_remaining);
+      Serial.println("ms remaining");
+    }
+#endif
+
+    }
+  } 
 }
 
 void Relay::setOnForDuration( unsigned long duration ) {
@@ -97,8 +107,10 @@ void Relay::setOnForDuration( unsigned long duration ) {
   duration_on = duration; 
  
   last_changed = millis();     // in case we were already on, we want a better value for last_changed 
-  
+ 
+#if MAD_RELAY_LOGGING 
   Serial.print("Relay on with a duration = ");
   Serial.print(duration);
   Serial.println(" ms"); 
+#endif
 }

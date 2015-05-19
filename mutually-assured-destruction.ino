@@ -31,6 +31,8 @@ void relay_setup();
 #define NEOPIXEL_COUNT 12
 #define FIRE_BURST_SHORT_DURATION 200
 
+#define MAD_LOGGING 1
+
 
 #pragma mark - Main
 
@@ -47,7 +49,9 @@ void setup() {
 	digitalWrite(LED, LOW);
 	delay(1000);
 
+#if MAD_LOGGING
   Serial.println("It's a MAD World!");
+#endif
 
   accelerometer = new Accelerometer();
   accelerometer->setup();
@@ -86,18 +90,24 @@ void loop() {
   
   if (!stopped) {
 
-    if ( remote->last_command == RemoteCommandLeft ) {    
+    if ( remote->last_command == RemoteCommandLeft ) {
+#if MAD_LOGGING
       Serial.println("Relay 0 OnForDuration");
+#endif
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       
     } else if ( remote->last_command == RemoteCommandRight ) {
    
+#if MAD_LOGGING
       Serial.println("Relay 1 OnForDuration");
+#endif
       r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
 
     } else if ( remote->last_command == RemoteCommandBoth ) {
    
+#if MAD_LOGGING
       Serial.println("Both Relays OnForDuration");
+#endif
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       

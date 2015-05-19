@@ -10,6 +10,8 @@
 // #define MOUNTING_AXIS_PRIMARY 0
 // #define MOUNTING_AXIS_SECONDARY 0
 
+#define MAD_ACCELEROMETER_LOGGING 1
+
 #define ACCELEROMETER_THRESHOLD_POSITIVE 0.45f
 #define ACCELEROMETER_THRESHOLD_NEGATIVE -0.45f
 #define ACCELEROMETER_AT_TOP_DURATION 200 // in ms
@@ -42,15 +44,18 @@ void Accelerometer::setup()
 {
 
   if (! mma.begin()) {
+    // always log this because it's so crucial
     Serial.println("Couldnt start");
     while (1);
   }
-  Serial.println("MMA8451 found!");
   
   mma.setRange(MMA8451_RANGE_2_G);
   
+#if MAD_ACCELEROMETER_LOGGING
+  Serial.println("MMA8451 found!");
   Serial.print("Range = "); Serial.print(2 << mma.getRange());  
   Serial.println("G"); 
+#endif
 }
 
 void Accelerometer::loop()
@@ -59,7 +64,9 @@ void Accelerometer::loop()
   double timeNow = millis();
   bool changed = false;
   if ( timeNow - last_sample < ACCELEROMETER_SAMPLE_INTERVAL ) {
+#if MAD_ACCELEROMETER_LOGGING
     Serial.println("Skipping Sample");
+#endif
     return;
   }
 
@@ -85,9 +92,9 @@ void Accelerometer::loop()
   if ( position == currentPosition ) {
 
     last_sample_with_same_position = timeNow;
-
+#if MAD_ACCELEROMETER_LOGGING
     Serial.print("Position is "); printPosition(currentPosition,1);
-
+#endif
   } else {
 
     double timeSinceLastSame = timeNow - last_sample_with_same_position;
@@ -95,17 +102,19 @@ void Accelerometer::loop()
 
       last_position = position;
       position = currentPosition;
-
+#if MAD_ACCELEROMETER_LOGGING
       Serial.print("Position changed to ");
       printPosition(currentPosition,0);
       Serial.println("!!");
+#endif
 
       changed = true;
 
     } else {
-
+#if MAD_ACCELEROMETER_LOGGING
       Serial.print("Position changing to ");
       printPosition(currentPosition,1);
+#endif
     }
   }
 
@@ -122,12 +131,10 @@ float Accelerometer::angle_position()
 
 void Accelerometer::log() {
   
+#if MAD_ACCELEROMETER_LOGGING
+
   float angle = angle_position();
   float fangle = fabs(angle);
-
-  // if ( fangle < .1 ) {
-  //   print("Sides are level");
-  // } else {}
 
   if ( angle > 0 ) {
     Serial.print("Side 0 at ");    
@@ -136,6 +143,8 @@ void Accelerometer::log() {
   }
   Serial.print(fangle*100);
   Serial.println(" percent height");
+#endif
+
 }
 
 #pragma mark - C helpers
@@ -150,6 +159,9 @@ AccelerometerPosition positionForValue(float value) {
 }
 
 void printPosition(AccelerometerPosition position, bool newLine) {
+
+#if MAD_ACCELEROMETER_LOGGING
+
   switch(position) {
     case AccelerometerPositionSide0Top:
       Serial.print("Side 0 Top");
@@ -163,6 +175,9 @@ void printPosition(AccelerometerPosition position, bool newLine) {
   if ( newLine ) {
     Serial.print("\n");
   }
+
+#endif
+
 }
 
 float averageMeasuresCalc(float * measures ) {
@@ -172,23 +187,3 @@ float averageMeasuresCalc(float * measures ) {
   }
   return average / ACCELEROMETER_COUNT_MESASURES;
 }
-
-// void accelerometer_log() {
-
-//     // Read the 'raw' data in 14-bit counts
-//   mma.read();
-// //  Serial.print("X:\t"); Serial.print(mma.x); 
-// //  Serial.print("\tY:\t"); Serial.print(mma.y); 
-// //  Serial.print("Z: "); Serial.print(mma.z);  Serial.print("\tEvent.accel.z=\t");
-// //  Serial.println();
-
-//   /* Get a new sensor event */ 
-//   sensors_event_t event; 
-//   mma.getEvent(&event);
-
-//   /* Display the results (acceleration is measured in m/s^2) */
-//   Serial.print("X: \t"); Serial.print(event.acceleration.x); Serial.print("\t");
-//   Serial.print("Y: \t"); Serial.print(event.acceleration.y); Serial.print("\t");
-//   Serial.print(event.acceleration.z); Serial.print("\t");
-//   Serial.println("m/s^2 ");  
-// }
