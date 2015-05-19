@@ -74,8 +74,9 @@ void loop() {
   
   accelerometer->loop();
   // accelerometer->log();
-
   remote->loop();
+  button0->loop();
+  button1->loop();
 
   // indicates whether we should clear last command
   // boolean clearLastCommand = true;

@@ -5,10 +5,14 @@ class Button
 {
   private:
     int pin;
+    bool debounced_state;
+    bool last_state;
+    unsigned long last_state_change;
     
   public:
     Button( int );
     bool isOn();
+    void loop();
 };
 
 #endif
