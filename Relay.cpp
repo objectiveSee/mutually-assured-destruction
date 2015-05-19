@@ -10,7 +10,7 @@ Relay::Relay( int whatPin )
 {
   // initialize variables
   pin = whatPin;
-  run = 0;
+  run = false;
   last_changed = millis();
   duration_on = 0;
 
@@ -29,7 +29,7 @@ void Relay::on()
 {
   if( ! run )
   {
-    run = 1;
+    run = true;
     last_changed = millis();
   }
   digitalWrite( pin, RELAY_ON );
@@ -39,7 +39,7 @@ void Relay::on()
 void Relay::off()
 {
   if ( run ) {
-    run = 0;
+    run = false;
     last_changed = millis();
   }
   duration_on = 0;
@@ -53,7 +53,7 @@ unsigned long Relay::time_running() {
   return 0;
 }
 
-int Relay::running()
+bool Relay::running()
 {
   return run;
 }
@@ -96,7 +96,7 @@ void Relay::setOnForDuration( unsigned long duration ) {
   on();
   duration_on = duration; 
  
- last_changed = millis();     // in case we were already on, we want a better value for last_changed 
+  last_changed = millis();     // in case we were already on, we want a better value for last_changed 
   
   Serial.print("Relay on with a duration = ");
   Serial.print(duration);
