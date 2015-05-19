@@ -1,25 +1,28 @@
-
+// Arduino Libraries
 #include <Arduino.h>
 #include <IRLib.h>
 #include <Wire.h>
 #include <Adafruit_MMA8451.h>
 #include <Adafruit_Sensor.h>
 
+// MAD Libraries
 #include "Accelerometer.h"
 #include "Relay.h"
 #include "Lights.h"
 #include "RemoteControl.h"
 
+// Static Members
 static Relay * r0 = 0;
 static Relay * r1 = 0;
 static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
+static boolean stopped = 0;
 
+// Function Declerations
 void relay_setup();
 
-boolean stopped = 0;
-
+// Defines
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
@@ -27,6 +30,9 @@ boolean stopped = 0;
 #define NEOPIXEL_PIN_B -1
 #define NEOPIXEL_COUNT 12
 #define FIRE_BURST_SHORT_DURATION 200
+
+
+#pragma mark - Main
 
 void setup() {
   // put your setup code here, to run once:
@@ -53,21 +59,17 @@ void setup() {
 }
 
 void loop() {
-
-  // put your main code here, to run repeatedly:
-//  relay_test();
-  
-//  updateAccelerometer();
-  // accelerometer_log();
   
   accelerometer->loop();
-  remote->loop();
-
   // accelerometer->log();
 
+  remote->loop();
+
   // indicates whether we should clear last command
-  boolean c = true;
-    
+  // boolean clearLastCommand = true;
+
+  // Process remote command:
+
   if ( remote->last_command == RemoteCommandStop ) {
     
     stopped = 1;
@@ -111,7 +113,6 @@ void loop() {
           }
         }
       }
-      
     }
 
   }   /** end code that only runs if !stopped **/
@@ -120,10 +121,10 @@ void loop() {
   r1->loop();
   lights->loop();
   
-  if ( c ) {
+  // if ( clearLastCommand ) {
    // clear last command 
    remote->clearCommand();
-  }
+  // }
 
   // blink every second
   // unsigned long second = (unsigned long)((float)millis() / 1000);
