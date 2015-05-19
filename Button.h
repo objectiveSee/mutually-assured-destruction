@@ -4,7 +4,7 @@
 class Button
 {
   private:
-    int pin;
+    int my_pin;
     bool debounced_state;
     bool last_state;
     unsigned long last_state_change;
