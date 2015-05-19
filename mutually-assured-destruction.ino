@@ -29,8 +29,8 @@ void relay_setup();
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
-#define BUTTON_0_PIN 13
-#define BUTTON_1_PIN 12
+#define BUTTON_0_PIN 6
+#define BUTTON_1_PIN 5
 #define NEOPIXEL_PIN_A 8
 #define NEOPIXEL_PIN_B -1
 #define NEOPIXEL_COUNT 12
@@ -61,7 +61,7 @@ void setup() {
   accelerometer = new Accelerometer();
   accelerometer->setup();
 
-	lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
+  lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
   lights->on();
 
   button0 = new Button(BUTTON_0_PIN);
@@ -76,7 +76,7 @@ void loop() {
   // accelerometer->log();
   remote->loop();
   button0->loop();
-//  button1->loop();
+  button1->loop();
 
   // indicates whether we should clear last command
   // boolean clearLastCommand = true;
