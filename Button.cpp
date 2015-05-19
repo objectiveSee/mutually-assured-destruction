@@ -3,6 +3,7 @@
 #include "Button.h"
 
 #define DEBOUNCE_DURATION 40
+#define MAD_BUTTON_LOGGING 1
 
 Button::Button( int pin_num )
 {
@@ -29,6 +30,10 @@ void Button::loop() {
 
 	if ( current_time - last_state_change > DEBOUNCE_DURATION ) {
 		debounced_state = state_now;
+#if MAD_BUTTON_LOGGING
+		Serial.print("Button (pin="); Serial.print(pin); Serial.print(") is now ");
+		Serial.println(debounced_state?"Pressed":"Released");
+#endif
 	}
 
 	last_state = state_now;	
