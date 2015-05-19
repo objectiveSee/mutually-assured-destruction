@@ -10,10 +10,13 @@
 #include "Relay.h"
 #include "Lights.h"
 #include "RemoteControl.h"
+#include "Button.h"
 
 // Static Members
 static Relay * r0 = 0;
 static Relay * r1 = 0;
+static Button * button0 = 0;
+static Button * button1 = 0;
 static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
@@ -26,6 +29,8 @@ void relay_setup();
 #define LED 13
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
+#define BUTTON_0_PIN -1
+#define BUTTON_1_PIN -1
 #define NEOPIXEL_PIN_A 8
 #define NEOPIXEL_PIN_B -1
 #define NEOPIXEL_COUNT 12
@@ -41,7 +46,7 @@ void setup() {
 
 	Serial.begin(9600); 
 	
-        // call before delay because relays are active low so we want to set to be HIGH as soon as possible
+  // call before delay because relays are active low so we want to set to be HIGH as soon as possible
 	relay_setup();
 
 	digitalWrite(LED, HIGH);
@@ -58,6 +63,9 @@ void setup() {
 
 	lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
   lights->on();
+
+  button0 = new Button(BUTTON_0_PIN);
+  button1 = new Button(BUTTON_1_PIN);
 
   remote = new RemoteControl(-1);  // note pin is specified in class        
 }
