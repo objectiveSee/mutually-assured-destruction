@@ -16,7 +16,6 @@ static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
 
-void relay_loop();
 void relay_setup();
 
 boolean stopped = 0;
@@ -84,6 +83,7 @@ void loop() {
   }
   
   if (!stopped) {
+
     if ( remote->last_command == RemoteCommandLeft ) {    
       Serial.println("Relay 0 OnForDuration");
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
@@ -99,8 +99,22 @@ void loop() {
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       
-    }   
-  }
+    } else {
+      // only do accelerometer based stuff if the remote isn't active (?)
+
+      if ( accelerometer->position_changed ) {
+        if ( accelerometer->last_position == AccelerometerPositionNone ) {
+          if ( accelerometer->position == AccelerometerPositionSide0Top ) {
+            r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+          } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {
+            r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+          }
+        }
+      }
+      
+    }
+
+  }   /** end code that only runs if !stopped **/
   
   r0->loop();
   r1->loop();
@@ -124,49 +138,9 @@ void loop() {
 //  delay(100);
 }
 
-#define INTERVAL 2000
-
-void rapid_fire (unsigned long delayTime) {
-
-	for ( int i = 0; i < 1; i++ ) {
-		r0->on();
-	  	r1->off();
-	  	delay(delayTime);
-		r0->off();
-	  	r1->on();
-	  	delay(delayTime);
-	}
-}
-
-void relay_test () {
-	unsigned long second = millis()/1000;
-	if ( second % 3 ) {
-		r0->on();
-		r1->on();
-	} else {
-		r0->off();
-		r1->off();		
-	}
-}
-
-void relay_loop() {
-
-	static unsigned long d = 100;
-
-	rapid_fire(d);
-
-	d+= 100;
-	if ( d > 700 ) {
-		d = 100;
-	}
-
-}
-
 void relay_setup() {
-
 	r0 = new Relay(RELAY_0_PIN);
 	r1 = new Relay(RELAY_1_PIN);
-
   r0->off();
   r1->off();
 }
