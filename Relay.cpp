@@ -4,7 +4,7 @@
 // Relay is active low, so you need a 0 to turn it on. 
 #define RELAY_ON 0
 #define RELAY_OFF 1
-#define MAX_TIME_ON 4000
+#define MAX_TIME_ON 1000
 
 Relay::Relay( int whatPin )
 {
@@ -56,7 +56,6 @@ unsigned long Relay::time_running() {
 int Relay::running()
 {
   return run;
-
 }
 
 #pragma mark - Should be in Subclass for Fire Relay
@@ -75,7 +74,7 @@ void Relay::loop() {
      Serial.println("Duration expired on Relay. Turning off now");
      off();
      
-   } else if ( run && time_running() > MAX_TIME_ON ) {
+   } else if ( run && ( time_running() > MAX_TIME_ON ) ) {
      
      Serial.println("Relay left on for too long. Turning off now");
      off(); 
@@ -101,13 +100,5 @@ void Relay::setOnForDuration( unsigned long duration ) {
   
   Serial.print("Relay on with a duration = ");
   Serial.print(duration);
-  Serial.println(" ms");
-  
+  Serial.println(" ms"); 
 }
-
-
-
-
-
-
-
