@@ -61,7 +61,7 @@ void Accelerometer::setup()
 void Accelerometer::loop()
 {
 
-  double timeNow = millis();
+  unsigned long timeNow = millis();
   bool changed = false;
   if ( timeNow - last_sample < ACCELEROMETER_SAMPLE_INTERVAL ) {
 #if MAD_ACCELEROMETER_LOGGING
@@ -97,7 +97,7 @@ void Accelerometer::loop()
 #endif
   } else {
 
-    double timeSinceLastSame = timeNow - last_sample_with_same_position;
+    unsigned long timeSinceLastSame = timeNow - last_sample_with_same_position;
     if ( timeSinceLastSame > ACCELEROMETER_AT_TOP_DURATION ) {
 
       last_position = position;

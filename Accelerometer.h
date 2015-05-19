@@ -29,9 +29,9 @@ private:
     float average_measures;
     int last_measures_index;
     float angle;
-    double last_sample;
-    double last_position_change;
-    double last_sample_with_same_position;
+    unsigned long last_sample;
+    unsigned long last_position_change;
+    unsigned long last_sample_with_same_position;
 };
 
 #endif /* defined(__Accelerometer__) */
