@@ -37,7 +37,34 @@ Lights::Lights( int pA, int pB, int countLights )
   // digitalWrite( pin, Lights_OFF );
 }
 
-void Lights::loop() {   
+void Lights::loop() { 
+  
+  return;
+  
+  static int looper = 0;
+  static int r = 40;
+  static int b = 0;
+  static boolean flop = false;
+  
+  unsigned long sss = millis();
+  
+  for ( int i = 0; i < numLights_perStrip; i++ ) {
+    
+    looper++;
+    if ( i == looper ) {
+        color c = stripA->Color(0,0,40);
+        stripA->setPixelColor(i, c);
+    } else {
+        color c = stripA->Color(40,0,0);
+        stripA->setPixelColor(i, c);      
+    }
+ }  
+  stripA->show();
+  
+  unsigned long eee = millis() - sss;
+  if ( eee > 10 ) {
+    Serial.print("Lights took "); Serial.println(eee);
+  }
 }
 
 
