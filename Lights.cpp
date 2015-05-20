@@ -6,6 +6,7 @@ typedef uint32_t color;
 Adafruit_NeoPixel *stripA;
 Adafruit_NeoPixel *stripB;
 
+
 Lights::Lights( int pA, int pB, int countLights )
 {
   // initialize variables
@@ -14,8 +15,8 @@ Lights::Lights( int pA, int pB, int countLights )
   numLights = countLights;
   numLights_perStrip = numLights * 2;
 
-  stripA = new Adafruit_NeoPixel(60, pinA, NEO_GRB + NEO_KHZ800);
-  stripB = new Adafruit_NeoPixel(60, pinB, NEO_GRB + NEO_KHZ800);
+  stripA = new Adafruit_NeoPixel(numLights, pinA, NEO_GRB + NEO_KHZ800);
+  stripB = new Adafruit_NeoPixel(numLights, pinB, NEO_GRB + NEO_KHZ800);
   
   stripA->begin();
   stripB->begin();
@@ -67,7 +68,8 @@ void Lights::off()
     setPixelColor(i, c);
   }
   isOn = 0;
-  show();
+  stripA->show();
+  stripB->show();
 }
 
 void Lights::shoot( int direction ) {  
