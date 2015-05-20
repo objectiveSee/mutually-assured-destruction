@@ -21,6 +21,7 @@ public:
     AccelerometerPosition position;
     AccelerometerPosition last_position;
     bool position_changed;  // set for 1 cycle of loop() only. Better check it fool!
+    bool working;
 
 //    ~Accelerometer();   
 

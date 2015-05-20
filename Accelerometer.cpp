@@ -38,6 +38,7 @@ Accelerometer::Accelerometer()
   last_sample = -99999;
   last_sample_with_same_position = 0;
   position_changed = false;
+  working = false;
 }
 
 void Accelerometer::setup()
@@ -45,9 +46,10 @@ void Accelerometer::setup()
 
   if (! mma.begin()) {
     // always log this because it's so crucial
-    Serial.println("Couldnt start");
-    while (1);
+    Serial.println("Accelerometer error");    
+    return;
   }
+  working = true;
   
   mma.setRange(MMA8451_RANGE_2_G);
   
@@ -60,12 +62,15 @@ void Accelerometer::setup()
 
 void Accelerometer::loop()
 {
+  if ( !working ) {
+    return;
+  }
 
   unsigned long timeNow = millis();
   bool changed = false;
   if ( timeNow - last_sample < ACCELEROMETER_SAMPLE_INTERVAL ) {
 #if MAD_ACCELEROMETER_LOGGING
-    Serial.println("Skipping Sample");
+//    Serial.println("Skipping Sample");
 #endif
     return;
   }
@@ -93,7 +98,7 @@ void Accelerometer::loop()
 
     last_sample_with_same_position = timeNow;
 #if MAD_ACCELEROMETER_LOGGING
-    Serial.print("Position is "); printPosition(currentPosition,1);
+//    Serial.print("Position is "); printPosition(currentPosition,1);
 #endif
   } else {
 
