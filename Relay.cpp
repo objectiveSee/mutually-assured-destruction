@@ -6,7 +6,7 @@
 #define RELAY_OFF 1
 #define MAX_TIME_ON 1000
 
-#define MAD_RELAY_LOGGING 1
+#define MAD_RELAY_LOGGING 0
 
 Relay::Relay( int whatPin )
 {
