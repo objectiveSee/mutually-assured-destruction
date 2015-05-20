@@ -27,16 +27,24 @@ void relay_setup();
 
 // Defines
 #define LED 13
+
+// Relay & Fire
 #define RELAY_0_PIN 10
 #define RELAY_1_PIN 9
-#define BUTTON_0_PIN 6
-#define BUTTON_1_PIN 5
-#define NEOPIXEL_PIN_A 8
-#define NEOPIXEL_PIN_B -1
-#define NEOPIXEL_COUNT 12
 #define FIRE_BURST_SHORT_DURATION 200
 
+// Buttons
+#define BUTTON_0_PIN 6
+#define BUTTON_1_PIN 5
+
+// Lights
+#define NEOPIXEL_PIN_A 4
+#define NEOPIXEL_PIN_B 3
+#define NEOPIXEL_COUNT 5
+
+// Logging
 #define MAD_LOGGING 1
+#define MAD_LIGHTS_ENABLED 1
 
 
 #pragma mark - Main
@@ -61,8 +69,10 @@ void setup() {
   accelerometer = new Accelerometer();
   accelerometer->setup();
 
+#if MAD_LIGHTS_ENABLED
   lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
   lights->on();
+#endif
 
   button0 = new Button(BUTTON_0_PIN);
   button1 = new Button(BUTTON_1_PIN);
@@ -77,7 +87,14 @@ void loop() {
   remote->loop();
   button0->loop();
   button1->loop();
-
+  
+#ifdef MAD_LOGGING
+static int t = 0;
+if ( t == 0 ) {
+  Serial.println("loop");
+}
+t = (t+1)%1000;
+#endif
   // indicates whether we should clear last command
   // boolean clearLastCommand = true;
 
@@ -138,8 +155,9 @@ void loop() {
   
   r0->loop();
   r1->loop();
+#if MAD_LIGHTS_ENABLED
   lights->loop();
-  
+#endif  
   // if ( clearLastCommand ) {
    // clear last command 
    remote->clearCommand();
