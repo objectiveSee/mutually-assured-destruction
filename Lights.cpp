@@ -6,20 +6,22 @@ typedef uint32_t color;
 Adafruit_NeoPixel *stripA;
 Adafruit_NeoPixel *stripB;
 
+#define MAD_LIGHTS_LOGGING 1
+
 
 Lights::Lights( int pA, int pB, int countLights )
 {
   // initialize variables
   pinA = pA;
   pinB = pB;
-  numLights = countLights;
-  numLights_perStrip = numLights * 2;
+  numLights_total = countLights * 2;
+  numLights_perStrip = countLights;
 
-  stripA = new Adafruit_NeoPixel(numLights, pinA, NEO_GRB + NEO_KHZ800);
-  stripB = new Adafruit_NeoPixel(numLights, pinB, NEO_GRB + NEO_KHZ800);
+  stripA = new Adafruit_NeoPixel(numLights_perStrip, pinA, NEO_GRB + NEO_KHZ800);
+//  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
   
   stripA->begin();
-  stripB->begin();
+  //stripB->begin();
   
   isOn = 0; 
 
@@ -63,7 +65,7 @@ void Lights::on() {
 
 void Lights::off()
 {
-  for ( int i = 0; i < numLights; i++ ) {
+  for ( int i = 0; i < numLights_total; i++ ) {
     color c = stripA->Color(0,0,0);
     setPixelColor(i, c);
   }
@@ -74,5 +76,4 @@ void Lights::off()
 
 void Lights::shoot( int direction ) {  
 }
-
 

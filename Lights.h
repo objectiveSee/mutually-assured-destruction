@@ -9,7 +9,7 @@ class Lights
     int pinA;
     int pinB;
     int numLights_perStrip;
-    int numLights;
+    int numLights_total;
     int isOn;
     
     // Abstracting Neopixel Library
