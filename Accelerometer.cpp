@@ -12,9 +12,9 @@
 
 #define MAD_ACCELEROMETER_LOGGING 1
 
-#define ACCELEROMETER_THRESHOLD_POSITIVE 0.45f
-#define ACCELEROMETER_THRESHOLD_NEGATIVE -0.45f
-#define ACCELEROMETER_AT_TOP_DURATION 200 // in ms
+#define ACCELEROMETER_THRESHOLD_POSITIVE 0.23f
+#define ACCELEROMETER_THRESHOLD_NEGATIVE -0.23f
+#define ACCELEROMETER_AT_TOP_DURATION 300 // in ms
 
 // C function declarations. Implementation below.
 float averageMeasuresCalc(float * measures );
