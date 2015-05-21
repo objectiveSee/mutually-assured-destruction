@@ -12,20 +12,10 @@
 #include "RemoteControl.h"
 #include "Button.h"
 
-// Static Members
-static Relay * r0 = 0;
-static Relay * r1 = 0;
-static Button * button0 = 0;
-static Button * button1 = 0;
-static Lights * lights = 0;
-static RemoteControl * remote = 0;
-static Accelerometer * accelerometer = 0;
-static boolean stopped = 0;
-
-// Function Declerations
-void relay_setup();
-
+//////////////////////////////////////////////////
 // Defines
+//////////////////////////////////////////////////
+
 #define LED 13
 
 // Relay & Fire
@@ -44,8 +34,24 @@ void relay_setup();
 
 // Logging
 #define MAD_LOGGING 1
-#define MAD_LIGHTS_ENABLED 1
+#define MAD_LIGHTS_ENABLED 0
 
+// Static Members
+static Relay * r0 = 0;
+static Relay * r1 = 0;
+static Button * button0 = 0;
+static Button * button1 = 0;
+static Lights * lights = 0;
+static RemoteControl * remote = 0;
+static Accelerometer * accelerometer = 0;
+static boolean stopped = 0;
+
+// Function Declerations
+void relay_setup();
+void toggleLightColors (boolean side);
+
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
 
 #pragma mark - Main
 
