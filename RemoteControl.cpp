@@ -5,6 +5,8 @@
 IRrecv My_Receiver(7);   // TODO: use whatPin
 IRdecode My_Decoder;
 
+#define MAD_REMOTE_LOGGING 0
+
 RemoteControl::RemoteControl( int whatPin )
 {
   // initialize variables
@@ -26,6 +28,10 @@ RemoteCommand RemoteControl::loop() {
 
    if (My_Decoder.decode_type== NEC) {
      
+#if MAD_REMOTE_LOGGING
+      Serial.print("Remote: ");  Serial.println(My_Decoder.value);
+#endif
+
        switch(My_Decoder.value) {
          
         case 0xFD609F:  //Stop button
@@ -38,10 +44,16 @@ RemoteCommand RemoteControl::loop() {
           break;
           
         case 0xFD10EF:
+#if MAD_REMOTE_LOGGING
+      Serial.println("Remote Left");
+#endif
           r = RemoteCommandLeft;
           break;
           
         case 0xFD50AF:
+#if MAD_REMOTE_LOGGING
+      Serial.println("Remote Right");
+#endif
            r = RemoteCommandRight;
           break;
           
@@ -51,6 +63,9 @@ RemoteCommand RemoteControl::loop() {
 
         case 0xFFFFFFFF:  // repeat last
           r = last_command;
+#if MAD_REMOTE_LOGGING
+      Serial.println("Remote Repeat Last");
+#endif
           break;
       }
      
@@ -66,17 +81,3 @@ RemoteCommand RemoteControl::loop() {
 void RemoteControl::clearCommand() {
   last_command = RemoteCommandNone;
 }
-
-#pragma mark - Private
-
-
-
-
-
-
-
-
-
-
-
-
