@@ -78,6 +78,7 @@ void setup() {
 #if MAD_LIGHTS_ENABLED
   lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
   lights->on();
+  toggleLightColors(true);
 #endif
 
   button0 = new Button(BUTTON_0_PIN);
@@ -150,8 +151,10 @@ t = (t+1)%1000;
         if ( accelerometer->last_position == AccelerometerPositionNone ) {
           if ( accelerometer->position == AccelerometerPositionSide0Top ) {
             r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            toggleLightColors(true);
           } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {
             r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            toggleLightColors(false);
           }
         }
       }
@@ -164,23 +167,24 @@ t = (t+1)%1000;
 #if MAD_LIGHTS_ENABLED
   lights->loop();
 #endif  
-  // if ( clearLastCommand ) {
-   // clear last command 
-   remote->clearCommand();
-  // }
 
-  // blink every second
-  // unsigned long second = (unsigned long)((float)millis() / 1000);
-  // if ( second % 2) {
-	// digitalWrite(LED, HIGH); 	
-  // } else {
- 	// digitalWrite(LED, LOW);
-  // }
-  // Serial.println("Second is");
-  // Serial.println);
-//  lights->loop();
-//  delay(100);
+   remote->clearCommand();
+
+  delay(10);
 }
+
+
+void toggleLightColors (boolean side) { 
+  uint32_t colorRed = lights->Color(30,0,0);
+  uint32_t colorBlue = lights->Color(0,0,30);
+  
+  if ( side ) {
+    lights->setColors(colorRed, colorBlue);
+  } else {
+    lights->setColors(colorBlue, colorRed);
+  }
+}
+
 
 void relay_setup() {
 	r0 = new Relay(RELAY_0_PIN);
