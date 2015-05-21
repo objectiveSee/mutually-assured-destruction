@@ -8,6 +8,8 @@ Adafruit_NeoPixel *stripB;
 
 #define MAD_LIGHTS_LOGGING 1
 
+#define LIGHT_UPDATE_INTERVAL 500
+
 
 Lights::Lights( int pA, int pB, int countLights )
 {
@@ -18,53 +20,56 @@ Lights::Lights( int pA, int pB, int countLights )
   numLights_perStrip = countLights;
 
   stripA = new Adafruit_NeoPixel(numLights_perStrip, pinA, NEO_GRB + NEO_KHZ800);
-//  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
+  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
   
   stripA->begin();
-  //stripB->begin();
+  stripB->begin();
   
   isOn = 0; 
-
-  // run = 0;
-  // last_changed = millis();
-
-
-  // // initialize physical objects
-  // pinMode( pin, OUTPUT );
-
-  // // don't forget that we don't know the state of the pin
-  // // so give it one
-  // digitalWrite( pin, Lights_OFF );
 }
 
-void Lights::loop() { 
-  
-  return;
-  
-  static int looper = 0;
-  static int r = 40;
-  static int b = 0;
-  static boolean flop = false;
-  
-  unsigned long sss = millis();
+void Lights::setColors(uint32_t c1, uint32_t c2) {
+ 
+  if ( ! isOn ) {
+    return;
+  }
   
   for ( int i = 0; i < numLights_perStrip; i++ ) {
-    
-    looper++;
-    if ( i == looper ) {
-        color c = stripA->Color(0,0,40);
-        stripA->setPixelColor(i, c);
-    } else {
-        color c = stripA->Color(40,0,0);
-        stripA->setPixelColor(i, c);      
-    }
- }  
-  stripA->show();
-  
-  unsigned long eee = millis() - sss;
-  if ( eee > 10 ) {
-    Serial.print("Lights took "); Serial.println(eee);
+    stripA->setPixelColor(i, c1);
+    stripB->setPixelColor(i, c2);
   }
+  show();  
+} 
+
+void Lights::loop() { 
+    
+//  static int looper = 0;
+//  static int r = 40;
+//  static int b = 0;
+//  static boolean flop = false;
+//  
+//  unsigned long sss = millis();
+//  if ( sss - last_light_update > 
+//  
+//  for ( int i = 0; i < numLights_perStrip; i++ ) {
+//    
+//    looper++;
+//    if ( i == looper ) {
+//        color c = stripA->Color(0,0,40);
+//        stripA->setPixelColor(i, c);
+//    } else {
+//        color c = stripA->Color(40,0,0);
+//        stripA->setPixelColor(i, c);      
+//    }
+// }  
+//  stripA->show();
+//  
+//#if MAD_LIGHTS_LOGGING
+//  unsigned long eee = millis() - sss;
+//  if ( eee >= 2 ) {
+//    Serial.print("Lights took "); Serial.println(eee);
+//  }
+//#endif
 }
 
 
@@ -83,8 +88,8 @@ void Lights::show() {
   }
 }
 
-void Lights::test() {  
-}
+//void Lights::test() {  
+//}
 
 void Lights::on() { 
   isOn = 1;
@@ -101,6 +106,7 @@ void Lights::off()
   stripB->show();
 }
 
-void Lights::shoot( int direction ) {  
+uint32_t Lights::Color(uint8_t r, uint8_t g, uint8_t b) {
+  return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
