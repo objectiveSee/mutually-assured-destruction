@@ -9,7 +9,8 @@ typedef enum  {
   RemoteCommandRight,
   RemoteCommandBoth,
   RemoteCommandUp,
-  RemoteCommandDown
+  RemoteCommandDown,
+  RemoteCommandToggleAccelerometer
 } RemoteCommand;
 
 class RemoteControl
