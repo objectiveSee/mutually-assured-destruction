@@ -4,7 +4,7 @@
 
 typedef uint32_t color;
 Adafruit_NeoPixel *stripA;
-Adafruit_NeoPixel *stripB;
+//Adafruit_NeoPixel *stripB;
 
 #define MAD_LIGHTS_LOGGING 1
 
@@ -16,14 +16,14 @@ Lights::Lights( int pA, int pB, int countLights )
   // initialize variables
   pinA = pA;
   pinB = pB;
-  numLights_total = countLights * 2;
+  numLights_total = countLights;
   numLights_perStrip = countLights;
 
   stripA = new Adafruit_NeoPixel(numLights_perStrip, pinA, NEO_GRB + NEO_KHZ800);
-  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
+//  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
   
   stripA->begin();
-  stripB->begin();
+//  stripB->begin();
   
   isOn = 0; 
 }
@@ -35,8 +35,11 @@ void Lights::setColors(uint32_t c1, uint32_t c2) {
   }
   
   for ( int i = 0; i < numLights_perStrip; i++ ) {
+   // if ( i % 3 == 0 ) {
     stripA->setPixelColor(i, c1);
-    stripB->setPixelColor(i, c2);
+//    stripB->setPixelColor(i, c2);
+    //} else {
+      
   }
   show();  
 } 
@@ -74,17 +77,17 @@ void Lights::loop() {
 
 
 void Lights::setPixelColor(uint16_t n, uint32_t c) {
-  if ( n >= numLights_perStrip ) { 
-    stripB->setPixelColor( n - numLights_perStrip, c);
-  } else {
+//  if ( n >= numLights_perStrip ) { 
+//    stripB->setPixelColor( n - numLights_perStrip, c);
+//  } else {
     stripA->setPixelColor( n, c);
-  }
+//  }
 }
 
 void Lights::show() { 
   if ( isOn ) {
     stripA->show();
-    stripB->show();
+//    stripB->show();
   }
 }
 
@@ -103,7 +106,7 @@ void Lights::off()
   }
   isOn = 0;
   stripA->show();
-  stripB->show();
+//  stripB->show();
 }
 
 uint32_t Lights::Color(uint8_t r, uint8_t g, uint8_t b) {

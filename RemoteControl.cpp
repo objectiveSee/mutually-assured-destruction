@@ -5,7 +5,7 @@
 IRrecv My_Receiver(7);   // TODO: use whatPin
 IRdecode My_Decoder;
 
-#define MAD_REMOTE_LOGGING 0
+#define MAD_REMOTE_LOGGING 
 
 RemoteControl::RemoteControl( int whatPin )
 {

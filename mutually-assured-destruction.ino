@@ -10,7 +10,7 @@
 #include "Relay.h"
 #include "Lights.h"
 #include "RemoteControl.h"
-#include "Button.h"
+//#include "Button.h"
 
 //////////////////////////////////////////////////
 // Defines
@@ -29,18 +29,18 @@
 
 // Lights
 #define NEOPIXEL_PIN_A 4
-#define NEOPIXEL_PIN_B 3
-#define NEOPIXEL_COUNT 5
+#define NEOPIXEL_PIN_B -1
+#define NEOPIXEL_COUNT 120
 
 // Logging
 #define MAD_LOGGING 1
-#define MAD_LIGHTS_ENABLED 0
+#define MAD_LIGHTS_ENABLED 1
 
 // Static Members
 static Relay * r0 = 0;
 static Relay * r1 = 0;
-static Button * button0 = 0;
-static Button * button1 = 0;
+//static Button * button0 = 0;
+//static Button * button1 = 0;
 static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
@@ -81,8 +81,8 @@ void setup() {
   toggleLightColors(true);
 #endif
 
-  button0 = new Button(BUTTON_0_PIN);
-  button1 = new Button(BUTTON_1_PIN);
+//  button0 = new Button(BUTTON_0_PIN);
+//  button1 = new Button(BUTTON_1_PIN);
 
   remote = new RemoteControl(-1);  // note pin is specified in class        
 }
@@ -92,8 +92,8 @@ void loop() {
   accelerometer->loop();
   // accelerometer->log();
   remote->loop();
-  button0->loop();
-  button1->loop();
+//  button0->loop();
+//  button1->loop();
   
 #ifdef MAD_LOGGING
 static int t = 0;
@@ -125,14 +125,14 @@ t = (t+1)%1000;
 
     if ( remote->last_command == RemoteCommandLeft ) {
 #if MAD_LOGGING
-      Serial.println("Relay 0 OnForDuration");
+      Serial.println("Relay 0 on");
 #endif
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       
     } else if ( remote->last_command == RemoteCommandRight ) {
    
 #if MAD_LOGGING
-      Serial.println("Relay 1 OnForDuration");
+      Serial.println("Relay 1 on");
 #endif
       r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
 
@@ -175,8 +175,13 @@ t = (t+1)%1000;
 
 
 void toggleLightColors (boolean side) { 
-  uint32_t colorRed = lights->Color(30,0,0);
-  uint32_t colorBlue = lights->Color(0,0,30);
+  
+#if MAD_LOGGING
+  Serial.print("Light Change "); Serial.println(side?"A":"B");
+#endif
+
+  uint32_t colorRed = lights->Color(10,0,0);
+  uint32_t colorBlue = lights->Color(0,0,10);
   
   if ( side ) {
     lights->setColors(colorRed, colorBlue);

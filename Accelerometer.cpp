@@ -10,10 +10,11 @@
 // #define MOUNTING_AXIS_PRIMARY 0
 // #define MOUNTING_AXIS_SECONDARY 0
 
-#define MAD_ACCELEROMETER_LOGGING 1
+#define MAD_ACCELEROMETER_LOGGING 0
 
-#define ACCELEROMETER_THRESHOLD_POSITIVE 0.23f
-#define ACCELEROMETER_THRESHOLD_NEGATIVE -0.23f
+// .25 and -.30
+#define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
+#define ACCELEROMETER_THRESHOLD_NEGATIVE -0.25f
 #define ACCELEROMETER_AT_TOP_DURATION 300 // in ms
 
 // C function declarations. Implementation below.
@@ -84,7 +85,9 @@ void Accelerometer::loop()
   mma.getEvent(&event);
 
   float acceleration = event.acceleration.x;
-  // Serial.print("X=\t"); Serial.println(acceleration); 
+  #if MAD_ACCELEROMETER_LOGGING
+  Serial.print("X=\t"); Serial.println(acceleration); 
+#endif
 
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
   last_measures[last_measures_index] = acceleration;
