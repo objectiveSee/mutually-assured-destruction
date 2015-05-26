@@ -5,7 +5,7 @@
 IRrecv My_Receiver(7);   // TODO: use whatPin
 IRdecode My_Decoder;
 
-#define MAD_REMOTE_LOGGING 
+#define MAD_REMOTE_LOGGING  1
 
 RemoteControl::RemoteControl( int whatPin )
 {
@@ -39,6 +39,9 @@ RemoteCommand RemoteControl::loop() {
           break;
           
         case 0xFD807F: // Play
+          r = RemoteCommandToggleAccelerometer;
+          break;
+          
         case 0xFD20DF: // Setup
           r = RemoteCommandStart;
           break;

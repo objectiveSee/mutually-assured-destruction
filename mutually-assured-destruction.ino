@@ -45,6 +45,7 @@ static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
 static boolean stopped = 0;
+static boolean accel_enabled = false;
 
 // Function Declerations
 void relay_setup();
@@ -144,16 +145,23 @@ t = (t+1)%1000;
       r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
       
+    } else if ( remote->last_command == RemoteCommandToggleAccelerometer ) {
+      accel_enabled = !accel_enabled;
+      
     } else {
       // only do accelerometer based stuff if the remote isn't active (?)
 
-      if ( accelerometer->position_changed ) {
+      if ( accelerometer->position_changed) {
         if ( accelerometer->last_position == AccelerometerPositionNone ) {
           if ( accelerometer->position == AccelerometerPositionSide0Top ) {
-            r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            if ( accel_enabled ) {
+              r0->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            }
             toggleLightColors(true);
           } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {
-            r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            if ( accel_enabled ) {
+              r1->setOnForDuration(FIRE_BURST_SHORT_DURATION);
+            }
             toggleLightColors(false);
           }
         }
