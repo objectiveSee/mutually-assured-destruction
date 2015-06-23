@@ -6,7 +6,7 @@ typedef uint32_t color;
 Adafruit_NeoPixel *stripA;
 //Adafruit_NeoPixel *stripB;
 
-#define MAD_LIGHTS_LOGGING 1
+#define MAD_LIGHTS_LOGGING 0
 
 #define LIGHT_UPDATE_INTERVAL 500
 
@@ -21,52 +21,52 @@ Lights::Lights( int pA, int pB, int countLights )
 
   stripA = new Adafruit_NeoPixel(numLights_perStrip, pinA, NEO_GRB + NEO_KHZ800);
 //  stripB = new Adafruit_NeoPixel(numLights_perStrip, pinB, NEO_GRB + NEO_KHZ800);
-  
+
   stripA->begin();
 //  stripB->begin();
-  
-  isOn = 0; 
+
+  isOn = 0;
 }
 
 void Lights::setColors(uint32_t c1, uint32_t c2) {
- 
+
   if ( ! isOn ) {
     return;
   }
-  
+
   for ( int i = 0; i < numLights_perStrip; i++ ) {
    // if ( i % 3 == 0 ) {
     stripA->setPixelColor(i, c1);
 //    stripB->setPixelColor(i, c2);
     //} else {
-      
-  }
-  show();  
-} 
 
-void Lights::loop() { 
-    
+  }
+  show();
+}
+
+void Lights::loop() {
+
 //  static int looper = 0;
 //  static int r = 40;
 //  static int b = 0;
 //  static boolean flop = false;
-//  
+//
 //  unsigned long sss = millis();
-//  if ( sss - last_light_update > 
-//  
+//  if ( sss - last_light_update >
+//
 //  for ( int i = 0; i < numLights_perStrip; i++ ) {
-//    
+//
 //    looper++;
 //    if ( i == looper ) {
 //        color c = stripA->Color(0,0,40);
 //        stripA->setPixelColor(i, c);
 //    } else {
 //        color c = stripA->Color(40,0,0);
-//        stripA->setPixelColor(i, c);      
+//        stripA->setPixelColor(i, c);
 //    }
-// }  
+// }
 //  stripA->show();
-//  
+//
 //#if MAD_LIGHTS_LOGGING
 //  unsigned long eee = millis() - sss;
 //  if ( eee >= 2 ) {
@@ -77,24 +77,24 @@ void Lights::loop() {
 
 
 void Lights::setPixelColor(uint16_t n, uint32_t c) {
-//  if ( n >= numLights_perStrip ) { 
+//  if ( n >= numLights_perStrip ) {
 //    stripB->setPixelColor( n - numLights_perStrip, c);
 //  } else {
     stripA->setPixelColor( n, c);
 //  }
 }
 
-void Lights::show() { 
+void Lights::show() {
   if ( isOn ) {
     stripA->show();
 //    stripB->show();
   }
 }
 
-//void Lights::test() {  
+//void Lights::test() {
 //}
 
-void Lights::on() { 
+void Lights::on() {
   isOn = 1;
 }
 
