@@ -1,7 +1,7 @@
 #ifndef RemoteControl_h
 #define RemoteControl_h
 
-typedef enum  { 
+typedef enum  {
   RemoteCommandNone = 0,
   RemoteCommandStop,
   RemoteCommandStart,
@@ -10,7 +10,18 @@ typedef enum  {
   RemoteCommandBoth,
   RemoteCommandUp,
   RemoteCommandDown,
-  RemoteCommandToggleAccelerometer
+  RemoteCommandToggleAccelerometer,
+  RemoteCommandAdjustAccelerometerLeft,
+  RemoteCommandAdjustAccelerometerRight,
+  RemoteCommandDigit1,
+  RemoteCommandDigit2,
+  RemoteCommandDigit3,
+  RemoteCommandDigit4,
+  RemoteCommandDigit5,
+  RemoteCommandDigit6,
+  RemoteCommandDigit7,
+  RemoteCommandDigit8,
+  RemoteCommandDigit9
 } RemoteCommand;
 
 class RemoteControl
@@ -23,9 +34,13 @@ class RemoteControl
 //    void handleResult( unsigned long );
 
   public:
-    RemoteCommand last_command;
+
+    RemoteCommand last_commands[2];
+    bool newCommand;
+
     RemoteControl( int );
     RemoteCommand loop();
+    // RemoteCommand last_command();
     void clearCommand();
     // void off();
     // int running();
