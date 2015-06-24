@@ -39,7 +39,7 @@ void loadConfig() {
 
     #if MAD_SETTINGS_LOGGING
     // error writing to EEPROM
-    Serial.println("[SETTINGS] Loaded!");
+    Serial.print("[SETTINGS] Loaded!  Float Value="); Serial.print(my_settings.accelerometer_angle_positive); Serial.println("!");
     #endif
 
     my_settings_loaded = true;
