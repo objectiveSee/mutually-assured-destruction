@@ -1,26 +1,13 @@
-var sum = function(array) {
-	var s = 0;
-	for ( var t= 0; t < array.length;t++ ) {
-		s += array[t];
-	}
-	return s;
-}
+// var sum = function(array) {
+// 	var s = 0;
+// 	for ( var t= 0; t < array.length;t++ ) {
+// 		s += array[t];
+// 	}
+// 	return s;
+// }
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-
-// var OPENING_ON = 20;
-// var OPENING_OFF = 35;
-// var OPENING_LAST_ON = 80;
-// var OPENING = [OPENING_ON,OPENING_OFF,OPENING_ON,OPENING_OFF,OPENING_ON,OPENING_OFF,OPENING_LAST_ON];
-
-// OPENING_ON = 15;
-// OPENING_OFF = 20;
-// OPENING_LAST_ON = 40;
-// var OPENING_QUICKER = [OPENING_ON,OPENING_OFF,OPENING_ON,OPENING_OFF,OPENING_ON,OPENING_OFF,OPENING_LAST_ON];
-
-// var left = [100,100,100,100];
-// var right = [100,100,100,100];
 
 var LEFT_ON = false;
 var RIGHT_ON = false;
@@ -36,11 +23,10 @@ var right = [97,6,13,6,13,6,13,175,47,7,15,7,15,7,15,285,96,6,12,6,12,6,12,228,0
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
-// unsigned char LRM_A[5] = {0,80,40,80,STOP};
+// const unsigned char LRM_A[] PROGMEM = {0,80,40,80,STOP};
 var dumpToC = function(variable_name, array) {
-	var length = array.length + 1;
 
-	var string = "unsigned char "+variable_name+"["+length+"] = {";
+	var string = "const unsigned char "+variable_name+"[] = {";
 
 	for ( var i = 0; i < array.length; i++ ) {
 		string += array[i]+",";
