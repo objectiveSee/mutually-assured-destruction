@@ -10,17 +10,20 @@
 // #define MOUNTING_AXIS_PRIMARY 0
 // #define MOUNTING_AXIS_SECONDARY 0
 
+#include "Settings.h"
+
 #define MAD_ACCELEROMETER_LOGGING 0
 
 // .25 and -.30
-#define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
-#define ACCELEROMETER_THRESHOLD_NEGATIVE -0.25f
+// #define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
+// #define ACCELEROMETER_THRESHOLD_NEGATIVE -0.25f
 #define ACCELEROMETER_AT_TOP_DURATION 300 // in ms
 
 // C function declarations. Implementation below.
 float averageMeasuresCalc(float * measures );
 AccelerometerPosition positionForValue(float value);
 void printPosition(AccelerometerPosition position, bool newLine);
+void logAdjustment(int side, float value);
 
 // Statics
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
@@ -47,17 +50,17 @@ void Accelerometer::setup()
 
   if (! mma.begin()) {
     // always log this because it's so crucial
-    Serial.println("Accelerometer error");    
+    Serial.println("Accelerometer error");
     return;
   }
   working = true;
-  
+
   mma.setRange(MMA8451_RANGE_2_G);
-  
+
 #if MAD_ACCELEROMETER_LOGGING
   Serial.println("MMA8451 found!");
-  Serial.print("Range = "); Serial.print(2 << mma.getRange());  
-  Serial.println("G"); 
+  Serial.print("Range = "); Serial.print(2 << mma.getRange());
+  Serial.println("G");
 #endif
 }
 
@@ -81,12 +84,12 @@ void Accelerometer::loop()
   mma.read();
 
     // Get a new sensor event
-  sensors_event_t event; 
+  sensors_event_t event;
   mma.getEvent(&event);
 
   float acceleration = event.acceleration.x;
   #if MAD_ACCELEROMETER_LOGGING
-  Serial.print("X=\t"); Serial.println(acceleration); 
+  Serial.print("X=\t"); Serial.println(acceleration);
 #endif
 
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
@@ -138,14 +141,14 @@ float Accelerometer::angle_position()
 }
 
 void Accelerometer::log() {
-  
+
 #if MAD_ACCELEROMETER_LOGGING
 
   float angle = angle_position();
   float fangle = fabs(angle);
 
   if ( angle > 0 ) {
-    Serial.print("Side 0 at ");    
+    Serial.print("Side 0 at ");
   } else {
     Serial.print("Side 1 at ");
   }
@@ -155,14 +158,48 @@ void Accelerometer::log() {
 
 }
 
+#define MAD_ACCELEROMETER_ADJUST_AMOUNT 0.01f
+
+void Accelerometer::adjustSide(AccelerometerPosition side, bool up) {
+
+  if ( !my_settings_loaded ) {
+    return;
+  }
+
+  float adjustment = up ? MAD_ACCELEROMETER_ADJUST_AMOUNT : -MAD_ACCELEROMETER_ADJUST_AMOUNT;
+
+  if ( side == AccelerometerPositionSide0Top ) {
+
+    my_settings.accelerometer_angle_positive += adjustment;
+    logAdjustment(0, my_settings.accelerometer_angle_positive);
+
+  } else if ( side == AccelerometerPositionSide1Top ) {
+
+    my_settings.accelerometer_angle_negative += adjustment;
+    logAdjustment(1, my_settings.accelerometer_angle_negative);
+  }
+
+};
+
 #pragma mark - C helpers
 
+void logAdjustment(int side, float value) {
+#if MAD_ACCELEROMETER_LOGGING
+  Serial.print("Adjustment: Side "); Serial.print(side); Serial.print(" = "); Serial.println(value);
+#endif
+}
+
 AccelerometerPosition positionForValue(float value) {
-  if ( value > ACCELEROMETER_THRESHOLD_POSITIVE ) {
-    return AccelerometerPositionSide0Top;
-  } else if ( value < ACCELEROMETER_THRESHOLD_NEGATIVE ) {
-    return AccelerometerPositionSide1Top;
+
+  if ( my_settings_loaded ) {   // make sure settings is actually loaded
+
+    if ( value > my_settings.accelerometer_angle_positive ) {
+      return AccelerometerPositionSide0Top;
+    } else if ( value < my_settings.accelerometer_angle_negative ) {
+      return AccelerometerPositionSide1Top;
+    }
   }
+
   return AccelerometerPositionNone;
 }
 

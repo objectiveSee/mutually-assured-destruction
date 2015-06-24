@@ -1,7 +1,7 @@
 #ifndef __Accelerometer__
 #define __Accelerometer__
 
-typedef enum  { 
+typedef enum  {
   AccelerometerPositionNone = 0,
   AccelerometerPositionSide0Top,
   AccelerometerPositionSide1Top
@@ -23,7 +23,9 @@ public:
     bool position_changed;  // set for 1 cycle of loop() only. Better check it fool!
     bool working;
 
-//    ~Accelerometer();   
+    void adjustSide(AccelerometerPosition side, bool up);
+
+//    ~Accelerometer();
 
 private:
     float last_measures[ACCELEROMETER_COUNT_MESASURES];
