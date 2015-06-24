@@ -5,6 +5,7 @@ typedef enum  {
   RemoteCommandNone = 0,
   RemoteCommandStop,
   RemoteCommandStart,
+  RemoteCommandSetup,
   RemoteCommandLeft,
   RemoteCommandRight,
   RemoteCommandBoth,

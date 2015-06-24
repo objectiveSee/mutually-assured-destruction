@@ -31,9 +31,9 @@ RemoteCommand RemoteControl::loop() {
 
    if (My_Decoder.decode_type== NEC) {
 
-#if MAD_REMOTE_LOGGING
-      Serial.print("Remote: ");  Serial.println(My_Decoder.value);
-#endif
+// #if MAD_REMOTE_LOGGING
+//       Serial.print("Remote: ");  Serial.println(My_Decoder.value);
+// #endif
 
        switch(My_Decoder.value) {
 
@@ -42,13 +42,13 @@ RemoteCommand RemoteControl::loop() {
           break;
 
         case 0xFD807F: // Play
-          r = RemoteCommandToggleAccelerometer;
+          r = RemoteCommandStart;
           break;
 
         case 0xFD20DF: // Setup
-          r = RemoteCommandStart;
+          r = RemoteCommandSetup;
           break;
-          
+
         case 0xFDA05F:
 #if MAD_REMOTE_LOGGING
       Serial.println("Remote Up");
@@ -61,7 +61,7 @@ RemoteCommand RemoteControl::loop() {
 #endif
           r = RemoteCommandDown;
           break;
-          
+
         case 0x00DEAD: // TODO pick real value
 #if MAD_REMOTE_LOGGING
       Serial.println("Adjust Left");
@@ -94,7 +94,7 @@ RemoteCommand RemoteControl::loop() {
           r = RemoteCommandBoth;
           break;
 
-    // digits          
+    // digits
         case 0xFD08F7:
           r = RemoteCommandDigit1;
           break;
@@ -109,7 +109,7 @@ RemoteCommand RemoteControl::loop() {
           break;
         case 0xFDA857:
           r = RemoteCommandDigit5;
-          break; 
+          break;
         case 0xFD6897:
           r = RemoteCommandDigit6;
           break;
@@ -121,24 +121,25 @@ RemoteCommand RemoteControl::loop() {
           break;
         case 0xFD58A7:
           r = RemoteCommandDigit9;
-          break;       
-       
-      // repeat   
+          break;
+
+      // repeat
         case 0xFFFFFFFF:  // repeat last
           r = RemoteCommandNone;  // ignore duplicate command since we received first
-#if MAD_REMOTE_LOGGING
-      Serial.println("Remote Repeat Last");
-#endif
+// #if MAD_REMOTE_LOGGING
+//       Serial.println("Remote Repeat Last");
+// #endif
           break;
       }
 
    }
     My_Receiver.resume(); 		//Restart the receiver
   }
-  
+
 #ifdef MAD_REMOTE_LOGGING
   if ( r >= RemoteCommandDigit1 && r <= RemoteCommandDigit9 ) {
-    Serial.print("Remote Digit"); Serial.print(r); Serial.println("");
+    unsigned int digit = r - RemoteCommandDigit1 + 1;
+    Serial.print("Remote Digit #"); Serial.print(digit); Serial.println("");
   }
 #endif
 
