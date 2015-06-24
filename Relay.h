@@ -26,6 +26,7 @@ class Relay
     unsigned long pattern_time_start;
 
     void setOnWithPattern(unsigned char * pattern);
+    void clearPattern();
 };
 
 #endif

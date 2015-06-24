@@ -61,17 +61,19 @@ void Relay::on()
 
 }
 
+void Relay::clearPattern() {
+  pattern_current = 0;
+  pattern_length = 0;
+  pattern_time_start = 0;
+  off();
+}
+
 void Relay::off()
 {
   if ( run ) {
     run = false;
     last_changed = millis();
   }
-
-  pattern_current = 0;
-  pattern_length = 0;
-  pattern_time_start = 0;
-
   digitalWrite( pin, RELAY_OFF );
 }
 
@@ -116,9 +118,7 @@ void Relay::loop() {
       // isOn will be false
       // reset the pattern
       Serial.println("Pattern done");
-      pattern_current = 0;
-      pattern_length = 0;
-      pattern_time_start = 0;
+      clearPattern();
     }
 
     if ( isOn ) {
