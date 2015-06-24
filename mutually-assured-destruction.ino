@@ -28,7 +28,7 @@
 #define NEOPIXEL_COUNT 120
 
 // Logging
-#define MAD_LOGGING 1
+#define MAD_LOGGING 0
 #define MAD_LIGHTS_ENABLED 0
 
 //////////////////////////////////////////////////
@@ -40,6 +40,7 @@
 #include "RemoteControl.h"
 //#include "Button.h"
 #include "Settings.h"
+#include "fire-patterns.h"
 
 #if MAD_LIGHTS_ENABLED
 #include "Lights.h"
@@ -131,8 +132,8 @@ void loop() {
   if ( last_command == RemoteCommandStop ) {
 
     stopped = 1;
-    r0->off();
-    r1->off();
+    r0->clearPattern();
+    r1->clearPattern();
     #if MAD_LIGHTS_ENABLED
     lights->off();
     #endif
@@ -197,6 +198,15 @@ void loop() {
       r0->setOnWithPattern(LRM_A);
       r1->setOnWithPattern(LRM_B);
 
+    } else if ( last_command == RemoteCommandDigit7 ) {
+
+      r0->setOnWithPattern(GOLDBERG_A);
+      r1->setOnWithPattern(GOLDBERG_B);
+
+    } else if ( last_command == RemoteCommandDigit5 ) {
+
+      r0->setOnWithPattern(BEETHOVEN_LEFT);
+      r1->setOnWithPattern(BEETHOVEN_RIGHT);
 
     } else if ( last_command == RemoteCommandToggleAccelerometer ) {
       accel_enabled = !accel_enabled;

@@ -1,12 +1,6 @@
 #ifndef Relay_h
 #define Relay_h
 
-extern unsigned char RAPID_BURST_A[];
-extern unsigned char RAPID_BURST_B[];
-extern unsigned char LRM_A[];
-extern unsigned char LRM_B[];
-extern unsigned char SINGLE_BUTTON_PRESS[];
-
 class Relay
 {
   private:
@@ -22,11 +16,12 @@ class Relay
     void loop();
 
     unsigned char * pattern_current;
-    unsigned char pattern_length;
+    unsigned int pattern_length;
     unsigned long pattern_time_start;
 
-    void setOnWithPattern(unsigned char * pattern);
+    void setOnWithPattern(const unsigned char * pattern);
     void clearPattern();
+    unsigned char patternCharAtIndex(const unsigned char * progmem_addr, unsigned int index);
 };
 
 #endif

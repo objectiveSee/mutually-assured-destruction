@@ -5,32 +5,12 @@
 #define RELAY_ON 0
 #define RELAY_OFF 1
 #define MAX_TIME_ON 1000
-#define MAD_RELAY_LOGGING 0
+#define MAD_RELAY_LOGGING 1
 
 #define PATTERN_INTERVAL_MULTIPLIER (int)10
 
 
-// Static Memory (Patterns)
-// Rapid Bursts
-#define RAPID_ON_DURATION 10
-#define RAPID_OFF_DURATION 10
-unsigned char RAPID_BURST_A[11] = {0,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,255};
-unsigned char RAPID_BURST_B[11] = {RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,RAPID_OFF_DURATION,RAPID_ON_DURATION,255};
-
-// L/R/Middle
-unsigned char LRM_A[5] = {0,80,40,80,255};
-unsigned char LRM_B[5] = {40,80,40,80,255};
-
-// Single Button Press Pattern
-unsigned char SINGLE_BUTTON_PRESS[3] = {0,30,255};
-
-
-// unsigned char RAPID_BURST_A[12] = {0,40,40,40,40,40,40,20,20,20,20,20,255};
-// unsigned char RAPID_BURST_B[2] = {0,255};
-
-
 // Class Begin
-
 Relay::Relay( int whatPin )
 {
   // initialize variables
@@ -102,13 +82,15 @@ void Relay::loop() {
 
     for ( unsigned char i = 0; i < pattern_length; i++ ) {
 
-      patternTime += ( pattern_current[i] * PATTERN_INTERVAL_MULTIPLIER );
+      unsigned char character = patternCharAtIndex(pattern_current, i);
+
+      patternTime += ( character * PATTERN_INTERVAL_MULTIPLIER );
 
       if ( timeSincePatternStart < patternTime ) {
         // we are inside this interval of the pattern
         isOn = ((i%2) == 1);
         matched = true;
-        Serial.print("matched on "); Serial.println(i);
+        // Serial.print("matched on "); Serial.println(i);
         break;
       }
 
@@ -117,7 +99,7 @@ void Relay::loop() {
     if ( !matched ) {
       // isOn will be false
       // reset the pattern
-      Serial.println("Pattern done");
+      Serial.println(F("Pattern done"));
       clearPattern();
     }
 
@@ -132,19 +114,25 @@ void Relay::loop() {
   }
 }
 
-void Relay::setOnWithPattern(unsigned char * pattern) {
+unsigned char Relay::patternCharAtIndex(const unsigned char * progmem_addr, unsigned int index) {
+  unsigned char myChar =  (unsigned char)pgm_read_byte_near(progmem_addr + index);
+  // Serial.println(myChar, HEX);
+  return myChar;
+}
+
+void Relay::setOnWithPattern(const unsigned char * pattern) {
 
   if ( !pattern ) {
     return;
   }
-  pattern_current = pattern;
+  pattern_current = (unsigned char *)pattern; // cast from `const`
   pattern_time_start = millis();
 
-  for ( pattern_length = 0; pattern_length <= 255; pattern_length++ ) {
-    if ( pattern[pattern_length] == 255 ) {
+  for ( pattern_length = 0; pattern_length <= 1000; pattern_length++ ) {
+    if ( patternCharAtIndex(pattern_current, pattern_length) == 255 ) {
       break;
     }
   }
 
-  Serial.print("Pattern Length is "); Serial.println(pattern_length);
+  Serial.print(F("Pattern Length is ")); Serial.println(pattern_length);
 };

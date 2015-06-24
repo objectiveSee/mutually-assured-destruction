@@ -3,7 +3,7 @@
 #include "Button.h"
 
 #define DEBOUNCE_DURATION 20
-#define MAD_BUTTON_LOGGING 1
+#define MAD_BUTTON_LOGGING 0
 
 Button::Button( int pin_num )
 {
@@ -11,7 +11,7 @@ Button::Button( int pin_num )
   debounced_state = true;    // active low
   last_state = true;         // active low
   last_state_change = 0;
-  
+
   // enable pull-up resistor to prevent floating input when button is not being pressed.
   pinMode(my_pin, INPUT_PULLUP);
 }
@@ -41,6 +41,6 @@ void Button::loop() {
 	       }
         }
 
-	last_state = state_now;	
+	last_state = state_now;
 }
 
