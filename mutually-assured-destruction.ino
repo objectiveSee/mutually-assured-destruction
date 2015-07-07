@@ -63,7 +63,7 @@ static Lights * lights = 0;
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
 static boolean stopped = 0;
-static boolean accel_enabled = false;
+static boolean accel_enabled = true;
 
 // Function Declerations
 void relay_setup();
@@ -207,6 +207,24 @@ void loop() {
 
       r0->setOnWithPattern(BEETHOVEN_LEFT);
       r1->setOnWithPattern(BEETHOVEN_RIGHT);
+
+    } else if ( last_command == RemoteCommandDigit4 ) {
+
+      r0->setOnWithPattern(RAPID_BURST_100MS);
+      r1->setOnWithPattern(RAPID_BURST_100MS);
+
+    } else if ( last_command == RemoteCommandDigit3 ) {
+
+      r0->setOnWithPattern(RAPID_BURST_100MS);
+
+    } else if ( last_command == RemoteCommandDigit2 ) {
+
+      r0->setOnWithPattern(RAPID_BURST_40MS);
+      r1->setOnWithPattern(RAPID_BURST_40MS);
+
+    } else if ( last_command == RemoteCommandDigit1 ) {
+
+      r0->setOnWithPattern(RAPID_BURST_40MS);
 
     } else if ( last_command == RemoteCommandToggleAccelerometer ) {
       accel_enabled = !accel_enabled;
