@@ -6,7 +6,7 @@ Playa Del Fuego / Transformus 2015
 A fire pattern is specially coded array of numbers that define how long the fire exhaust is open and closed for. You create an array of numbers that alternate how long the valve is closed, then open. For example, to fire three 300ms bursts, with 1 second in between them, the pattern would look like:
 
 ```c
-const unsigned char BURST[] PROGMEM = {0,30,100,30,100,30,100,30,STOP};
+const unsigned char BURST[] PROGMEM = {0,30,100,30,100,30,STOP};
 ```
 
 In the example above, a C array is created with values between 0 and 254. The value 255 is reserved for the STOP character, which must be at the end of the sequence. The unit of time is deci-seconds (ie. 1 = 10ms, 10=100ms, 100=1000ms).
