@@ -69,6 +69,8 @@ static unsigned char burst_mode = 1;
 // Function Declerations
 void relay_setup();
 const unsigned char * current_burst_pattern();
+void loop_led();
+void blink_led();
 
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -83,7 +85,8 @@ void setup() {
   // call before delay because relays are active low so we want to set to be HIGH as soon as possible
 	relay_setup();
 
-	digitalWrite(LED, HIGH);
+  pinMode(LED, OUTPUT); 
+  digitalWrite(LED, HIGH);
 	delay(1000);
 	digitalWrite(LED, LOW);
 	delay(1000);
@@ -209,6 +212,15 @@ void loop() {
 
   r0->loop();
   r1->loop();
+
+  // blink LED when new commands receive
+  if ( remote->newCommand ) {
+    blink_led();
+  }
+
+  // must call so LED is updated w/ time
+  loop_led();
+
 // #if MAD_LIGHTS_ENABLED
 //   lights->loop();
 // #endif
@@ -244,5 +256,22 @@ const unsigned char * current_burst_pattern() {
   return SINGLE_BURST;
 }
 
+// Blink the LED for a period based on time
+static unsigned long led_blink_end = 0;
+#define BLINK_DURATION_MS 500
 
+void loop_led() {
 
+  unsigned long now = millis();
+
+  if ( now < led_blink_end ) {
+    digitalWrite(LED, HIGH); 
+  } else {
+    digitalWrite(LED, LOW);
+  }
+
+}
+
+void blink_led() {
+  led_blink_end = millis() + BLINK_DURATION_MS;
+}
