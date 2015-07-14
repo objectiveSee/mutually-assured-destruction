@@ -10,9 +10,9 @@
 // #define MOUNTING_AXIS_PRIMARY 0
 // #define MOUNTING_AXIS_SECONDARY 0
 
-#include "Settings.h"
+// #include "Settings.h"
 
-#define MAD_ACCELEROMETER_LOGGING 0
+#define MAD_ACCELEROMETER_LOGGING 1
 
 // .25 and -.30
 // #define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
@@ -50,7 +50,7 @@ void Accelerometer::setup()
 
   if (! mma.begin()) {
     // always log this because it's so crucial
-    Serial.println("Accelerometer error");
+    Serial.println(F("Accelerometer error"));
     return;
   }
   working = true;
@@ -58,9 +58,9 @@ void Accelerometer::setup()
   mma.setRange(MMA8451_RANGE_2_G);
 
 #if MAD_ACCELEROMETER_LOGGING
-  Serial.println("MMA8451 found!");
-  Serial.print("Range = "); Serial.print(2 << mma.getRange());
-  Serial.println("G");
+  Serial.println(F("MMA8451 found!"));
+  Serial.print(F("Range = ")); Serial.print(2 << mma.getRange());
+  Serial.println(F("G"));
 #endif
 }
 
@@ -89,7 +89,7 @@ void Accelerometer::loop()
 
   float acceleration = event.acceleration.x;
   #if MAD_ACCELEROMETER_LOGGING
-  Serial.print("X=\t"); Serial.println(acceleration);
+  Serial.print(F("X=\t")); Serial.println(acceleration);
 #endif
 
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
@@ -114,7 +114,7 @@ void Accelerometer::loop()
       last_position = position;
       position = currentPosition;
 #if MAD_ACCELEROMETER_LOGGING
-      Serial.print("Position changed to ");
+      Serial.print(F("Position changed to "));
       printPosition(currentPosition,0);
       Serial.println("!!");
 #endif
@@ -123,7 +123,7 @@ void Accelerometer::loop()
 
     } else {
 #if MAD_ACCELEROMETER_LOGGING
-      Serial.print("Position changing to ");
+      Serial.print(F("Position changing to "));
       printPosition(currentPosition,1);
 #endif
     }
@@ -148,12 +148,12 @@ void Accelerometer::log() {
   float fangle = fabs(angle);
 
   if ( angle > 0 ) {
-    Serial.print("Side 0 at ");
+    Serial.print(F("Side 0 at "));
   } else {
-    Serial.print("Side 1 at ");
+    Serial.print(F("Side 1 at "));
   }
   Serial.print(fangle*100);
-  Serial.println(" percent height");
+  Serial.println(F(" percent height"));
 #endif
 
 }
@@ -162,22 +162,24 @@ void Accelerometer::log() {
 
 void Accelerometer::adjustSide(AccelerometerPosition side, bool up) {
 
-  if ( !my_settings_loaded ) {
-    return;
-  }
+  // todo not working so disabling before transformus
 
-  float adjustment = up ? MAD_ACCELEROMETER_ADJUST_AMOUNT : -MAD_ACCELEROMETER_ADJUST_AMOUNT;
+  // if ( !my_settings_loaded ) {
+  //   return;
+  // }
 
-  if ( side == AccelerometerPositionSide0Top ) {
+  // float adjustment = up ? MAD_ACCELEROMETER_ADJUST_AMOUNT : -MAD_ACCELEROMETER_ADJUST_AMOUNT;
 
-    my_settings.accelerometer_angle_positive += adjustment;
-    logAdjustment(0, my_settings.accelerometer_angle_positive);
+  // if ( side == AccelerometerPositionSide0Top ) {
 
-  } else if ( side == AccelerometerPositionSide1Top ) {
+  //   my_settings.accelerometer_angle_positive += adjustment;
+  //   logAdjustment(0, my_settings.accelerometer_angle_positive);
 
-    my_settings.accelerometer_angle_negative += adjustment;
-    logAdjustment(1, my_settings.accelerometer_angle_negative);
-  }
+  // } else if ( side == AccelerometerPositionSide1Top ) {
+
+  //   my_settings.accelerometer_angle_negative += adjustment;
+  //   logAdjustment(1, my_settings.accelerometer_angle_negative);
+  // }
 
 };
 
@@ -185,20 +187,23 @@ void Accelerometer::adjustSide(AccelerometerPosition side, bool up) {
 
 void logAdjustment(int side, float value) {
 #if MAD_ACCELEROMETER_LOGGING
-  Serial.print("Adjustment: Side "); Serial.print(side); Serial.print(" = "); Serial.println(value);
+  Serial.print(F("Adjustment: Side ")); Serial.print(side); Serial.print(F(" = ")); Serial.println(value);
 #endif
 }
 
 AccelerometerPosition positionForValue(float value) {
 
-  if ( my_settings_loaded ) {   // make sure settings is actually loaded
+//  if ( my_settings_loaded ) {   // make sure settings is actually loaded
+//
 
-    if ( value > my_settings.accelerometer_angle_positive ) {
+  // hard coding values for transformus. adjust in field :D
+
+    if ( value > 0.18f ) {
       return AccelerometerPositionSide0Top;
-    } else if ( value < my_settings.accelerometer_angle_negative ) {
+    } else if ( value < -.18f ) {
       return AccelerometerPositionSide1Top;
     }
-  }
+//  }
 
   return AccelerometerPositionNone;
 }
@@ -209,16 +214,16 @@ void printPosition(AccelerometerPosition position, bool newLine) {
 
   switch(position) {
     case AccelerometerPositionSide0Top:
-      Serial.print("Side 0 Top");
+      Serial.print(F("Side 0 Top"));
       break;
     case AccelerometerPositionSide1Top:
-      Serial.print("Side 1 Top");
+      Serial.print(F("Side 1 Top"));
       break;
     default:
-      Serial.print("None");
+      Serial.print(F("None"));
   }
   if ( newLine ) {
-    Serial.print("\n");
+    Serial.print(F("\n"));
   }
 
 #endif

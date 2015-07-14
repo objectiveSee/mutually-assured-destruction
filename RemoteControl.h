@@ -11,9 +11,9 @@ typedef enum  {
   RemoteCommandBoth,
   RemoteCommandUp,
   RemoteCommandDown,
-  RemoteCommandToggleAccelerometer,
-  RemoteCommandAdjustAccelerometerLeft,
-  RemoteCommandAdjustAccelerometerRight,
+  RemoteCommandToggleAccelerometer, // undefined
+  // RemoteCommandAdjustAccelerometerLeft,
+  // RemoteCommandAdjustAccelerometerRight,
   RemoteCommandDigit1,
   RemoteCommandDigit2,
   RemoteCommandDigit3,

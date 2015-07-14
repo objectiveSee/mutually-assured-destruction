@@ -62,19 +62,19 @@ RemoteCommand RemoteControl::loop() {
           r = RemoteCommandDown;
           break;
 
-        case 0x00DEAD: // TODO pick real value
-#if MAD_REMOTE_LOGGING
-      Serial.println("Adjust Left");
-#endif
-          r = RemoteCommandAdjustAccelerometerLeft;
-          break;
+//         case 0x00DEAD: // TODO pick real value
+// #if MAD_REMOTE_LOGGING
+//       Serial.println("Adjust Left");
+// #endif
+//           r = RemoteCommandAdjustAccelerometerLeft;
+//           break;
 
-        case 0x00DEED: // TODO pick real value
-#if MAD_REMOTE_LOGGING
-      Serial.println("Adjust Right");
-#endif
-          r = RemoteCommandAdjustAccelerometerRight;
-          break;
+//         case 0x00DEED: // TODO pick real value
+// #if MAD_REMOTE_LOGGING
+//       Serial.println("Adjust Right");
+// #endif
+//           r = RemoteCommandAdjustAccelerometerRight;
+//           break;
 
         case 0xFD10EF:
 #if MAD_REMOTE_LOGGING

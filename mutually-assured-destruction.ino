@@ -22,14 +22,14 @@
 #define BUTTON_0_PIN 6
 #define BUTTON_1_PIN 5
 
-// Lights
-#define NEOPIXEL_PIN_A 4
-#define NEOPIXEL_PIN_B -1
-#define NEOPIXEL_COUNT 120
+// // Lights
+// #define NEOPIXEL_PIN_A 4
+// #define NEOPIXEL_PIN_B -1
+// #define NEOPIXEL_COUNT 120
 
 // Logging
-#define MAD_LOGGING 0
-#define MAD_LIGHTS_ENABLED 0
+#define MAD_LOGGING 1
+// #define MAD_LIGHTS_ENABLED 0
 
 //////////////////////////////////////////////////
 // MAD Libraries
@@ -39,12 +39,12 @@
 #include "Relay.h"
 #include "RemoteControl.h"
 //#include "Button.h"
-#include "Settings.h"
+// #include "Settings.h"
 #include "fire-patterns.h"
 
-#if MAD_LIGHTS_ENABLED
-#include "Lights.h"
-#endif
+// #if MAD_LIGHTS_ENABLED
+// #include "Lights.h"
+// #endif
 
 //////////////////////////////////////////////////
 // Static Memory
@@ -56,18 +56,19 @@ static Relay * r1 = 0;
 //static Button * button0 = 0;
 //static Button * button1 = 0;
 
-#if MAD_LIGHTS_ENABLED
-static Lights * lights = 0;
-#endif
+// #if MAD_LIGHTS_ENABLED
+// static Lights * lights = 0;
+// #endif
 
 static RemoteControl * remote = 0;
 static Accelerometer * accelerometer = 0;
 static boolean stopped = 0;
 static boolean accel_enabled = true;
+static unsigned char burst_mode = 1;
 
 // Function Declerations
 void relay_setup();
-void toggleLightColors (boolean side);
+const unsigned char * current_burst_pattern();
 
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -87,21 +88,16 @@ void setup() {
 	digitalWrite(LED, LOW);
 	delay(1000);
 
-  loadConfig(); // read persistent settings from Settings.h
+  // loadConfig(); // read persistent settings from Settings.h
 
 #if MAD_LOGGING
-  Serial.println("It's a MAD World!");
+  Serial.println(F("It's a MAD World!"));
   delay(100);
 #endif
 
   accelerometer = new Accelerometer();
   accelerometer->setup();
 
-#if MAD_LIGHTS_ENABLED
-  lights = new Lights(NEOPIXEL_PIN_A, NEOPIXEL_PIN_B, NEOPIXEL_COUNT);
-  lights->on();
-  toggleLightColors(true);
-#endif
 
 //  button0 = new Button(BUTTON_0_PIN);
 //  button1 = new Button(BUTTON_1_PIN);
@@ -114,55 +110,17 @@ void loop() {
   accelerometer->loop();
   // accelerometer->log();
   RemoteCommand last_command = remote->loop();
-//  button0->loop();
-//  button1->loop();
-
-  // #ifdef MAD_LOGGING
-  // static int t = 0;
-  // if ( t == 0 ) {
-  //   Serial.println("loop");
-  // }
-  // t = (t+1)%1000;
-  // #endif
-  // indicates whether we should clear last command
-  // boolean clearLastCommand = true;
 
   // Process remote command:
-
   if ( last_command == RemoteCommandStop ) {
 
     stopped = 1;
     r0->clearPattern();
     r1->clearPattern();
-    #if MAD_LIGHTS_ENABLED
-    lights->off();
-    #endif
 
   } else if ( last_command == RemoteCommandStart ) {
-
      stopped = 0;
-     #if MAD_LIGHTS_ENABLED
-     lights->on();
-     #endif
-
   }
-
-  // can only adjust accelerometer when stopped
-  if ( stopped ) {
-
-    static float adjustment_value = 0;
-    static AccelerometerPosition adjustingSide = AccelerometerPositionNone;
-
-    if ( last_command == RemoteCommandAdjustAccelerometerLeft ) {
-#if MAD_LOGGING
-      Serial.println("Left Adjustments");
-#endif
-      adjustingSide = AccelerometerPositionSide0Top;
-    } else if ( last_command == RemoteCommandAdjustAccelerometerLeft ) {
-      adjustingSide = AccelerometerPositionSide1Top;
-    }
-  }
-
 
 
   if (!stopped) {
@@ -171,22 +129,24 @@ void loop() {
 #if MAD_LOGGING
       Serial.println("Relay 0 on");
 #endif
-      r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
+      r0->setOnWithPattern(current_burst_pattern());
+      r1->off();
 
     } else if ( last_command == RemoteCommandRight ) {
 
 #if MAD_LOGGING
       Serial.println("Relay 1 on");
 #endif
-      r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
+      r0->off();
+      r1->setOnWithPattern(current_burst_pattern());
 
     } else if ( last_command == RemoteCommandBoth ) {
 
 #if MAD_LOGGING
       Serial.println("Both Relays OnForDuration");
 #endif
-      r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
-      r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
+      r0->setOnWithPattern(current_burst_pattern());
+      r1->setOnWithPattern(current_burst_pattern());
 
     } else if ( last_command == RemoteCommandDigit9 ) {
 
@@ -210,21 +170,19 @@ void loop() {
 
     } else if ( last_command == RemoteCommandDigit4 ) {
 
-      r0->setOnWithPattern(RAPID_BURST_100MS);
-      r1->setOnWithPattern(RAPID_BURST_100MS);
+      burst_mode = 4;
 
     } else if ( last_command == RemoteCommandDigit3 ) {
 
-      r0->setOnWithPattern(RAPID_BURST_100MS);
+      burst_mode = 3;
 
     } else if ( last_command == RemoteCommandDigit2 ) {
 
-      r0->setOnWithPattern(RAPID_BURST_40MS);
-      r1->setOnWithPattern(RAPID_BURST_40MS);
+      burst_mode = 2;
 
     } else if ( last_command == RemoteCommandDigit1 ) {
 
-      r0->setOnWithPattern(RAPID_BURST_40MS);
+      burst_mode = 1;
 
     } else if ( last_command == RemoteCommandToggleAccelerometer ) {
       accel_enabled = !accel_enabled;
@@ -238,12 +196,10 @@ void loop() {
             if ( accel_enabled ) {
               r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
             }
-            toggleLightColors(true);
           } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {
             if ( accel_enabled ) {
               r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
             }
-            toggleLightColors(false);
           }
         }
       }
@@ -253,33 +209,14 @@ void loop() {
 
   r0->loop();
   r1->loop();
-#if MAD_LIGHTS_ENABLED
-  lights->loop();
-#endif
+// #if MAD_LIGHTS_ENABLED
+//   lights->loop();
+// #endif
 
   remote->clearCommand();
 
   delay(10);  // prevent us from spending all the time inside loop() so interrupt based things can happen
 }
-
-
-void toggleLightColors (boolean side) {
-#if MAD_LIGHTS_ENABLED
-#if MAD_LOGGING
-  Serial.print("Light Change "); Serial.println(side?"A":"B");
-#endif
-
-  uint32_t colorRed = lights->Color(10,0,0);
-  uint32_t colorBlue = lights->Color(0,0,10);
-
-  if ( side ) {
-    lights->setColors(colorRed, colorBlue);
-  } else {
-    lights->setColors(colorBlue, colorRed);
-  }
-#endif
-}
-
 
 void relay_setup() {
 	r0 = new Relay(RELAY_0_PIN);
@@ -287,3 +224,25 @@ void relay_setup() {
   r0->off();
   r1->off();
 }
+
+const unsigned char * current_burst_pattern() {
+
+  switch (burst_mode) {
+    case 1:
+      return SINGLE_BURST;
+      break;
+    case 2:
+      return RAPID_BURST_40MS;
+      break;
+    case 3:
+      return RAPID_BURST_100MS;
+      break;
+    case 4:
+      return RAPID_BURST_SUPERFAST;
+      break;
+  }
+  return SINGLE_BURST;
+}
+
+
+
