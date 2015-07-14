@@ -133,14 +133,14 @@ void loop() {
       Serial.println("Relay 0 on");
 #endif
       r0->setOnWithPattern(current_burst_pattern());
-      r1->off();
+//      r1->off();
 
     } else if ( last_command == RemoteCommandRight ) {
 
 #if MAD_LOGGING
       Serial.println("Relay 1 on");
 #endif
-      r0->off();
+//      r0->off();
       r1->setOnWithPattern(current_burst_pattern());
 
     } else if ( last_command == RemoteCommandBoth ) {
