@@ -130,7 +130,7 @@ void loop() {
 
     if ( last_command == RemoteCommandLeft ) {
 #if MAD_LOGGING
-      Serial.println("Relay 0 on");
+      Serial.println(F("Relay 0 on"));
 #endif
       r0->setOnWithPattern(current_burst_pattern());
 //      r1->off();
@@ -138,7 +138,7 @@ void loop() {
     } else if ( last_command == RemoteCommandRight ) {
 
 #if MAD_LOGGING
-      Serial.println("Relay 1 on");
+      Serial.println(F("Relay 1 on"));
 #endif
 //      r0->off();
       r1->setOnWithPattern(current_burst_pattern());
@@ -146,15 +146,15 @@ void loop() {
     } else if ( last_command == RemoteCommandBoth ) {
 
 #if MAD_LOGGING
-      Serial.println("Both Relays OnForDuration");
+      Serial.println(F("Both Relays on"));
 #endif
       r0->setOnWithPattern(current_burst_pattern());
       r1->setOnWithPattern(current_burst_pattern());
 
     } else if ( last_command == RemoteCommandDigit9 ) {
 
-      r0->setOnWithPattern(RAPID_BURST_A);
-      r1->setOnWithPattern(RAPID_BURST_B);
+      r0->setOnWithPattern(JAWS_LEFT);
+      r1->setOnWithPattern(JAWS_RIGHT);
 
     } else if ( last_command == RemoteCommandDigit8 ) {
 
@@ -165,6 +165,11 @@ void loop() {
 
       r0->setOnWithPattern(GOLDBERG_A);
       r1->setOnWithPattern(GOLDBERG_B);
+
+    } else if ( last_command == RemoteCommandDigit6 ) {
+
+      r0->setOnWithPattern(SHAVE_LEFT);
+      r1->setOnWithPattern(SHAVE_RIGHT);
 
     } else if ( last_command == RemoteCommandDigit5 ) {
 
