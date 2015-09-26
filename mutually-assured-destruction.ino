@@ -8,7 +8,7 @@
 
 
 //////////////////////////////////////////////////
-// Defines
+// Pins
 //////////////////////////////////////////////////
 
 #define LED 13
@@ -26,6 +26,10 @@
 // #define NEOPIXEL_PIN_A 4
 // #define NEOPIXEL_PIN_B -1
 // #define NEOPIXEL_COUNT 120
+
+//////////////////////////////////////////////////
+// Logging
+//////////////////////////////////////////////////
 
 // Logging
 #define MAD_LOGGING 1
@@ -112,9 +116,9 @@ void loop() {
 
   accelerometer->loop();
   // accelerometer->log();
-  RemoteCommand last_command = remote->loop();
+  RemoteCommand last_command = remote->loop();  // get the latest remote control command
 
-  // Process remote command:
+  // Process remote commands for stop/start
   if ( last_command == RemoteCommandStop ) {
 
     stopped = 1;
@@ -128,22 +132,20 @@ void loop() {
 
   if (!stopped) {
 
-    if ( last_command == RemoteCommandLeft ) {
+    if ( last_command == RemoteCommandLeft ) {            // Left
 #if MAD_LOGGING
       Serial.println(F("Relay 0 on"));
 #endif
       r0->setOnWithPattern(current_burst_pattern());
-//      r1->off();
 
-    } else if ( last_command == RemoteCommandRight ) {
+    } else if ( last_command == RemoteCommandRight ) {    // Right
 
 #if MAD_LOGGING
       Serial.println(F("Relay 1 on"));
 #endif
-//      r0->off();
       r1->setOnWithPattern(current_burst_pattern());
 
-    } else if ( last_command == RemoteCommandBoth ) {
+    } else if ( last_command == RemoteCommandBoth ) {    // Middle (Both)
 
 #if MAD_LOGGING
       Serial.println(F("Both Relays on"));
@@ -151,12 +153,12 @@ void loop() {
       r0->setOnWithPattern(current_burst_pattern());
       r1->setOnWithPattern(current_burst_pattern());
 
-    } else if ( last_command == RemoteCommandDigit9 ) {
+    } else if ( last_command == RemoteCommandDigit9 ) {  // 9
 
       r0->setOnWithPattern(JAWS_LEFT);
       r1->setOnWithPattern(JAWS_RIGHT);
 
-    } else if ( last_command == RemoteCommandDigit8 ) {
+    } else if ( last_command == RemoteCommandDigit8 ) {  // 8... and so on...
 
       r0->setOnWithPattern(LRM_A);
       r1->setOnWithPattern(LRM_B);
@@ -192,10 +194,10 @@ void loop() {
 
       burst_mode = 1;
 
-    } else if ( last_command == RemoteCommandToggleAccelerometer ) {
+    } else if ( last_command == RemoteCommandToggleAccelerometer ) {    // deprecate?
       accel_enabled = !accel_enabled;
 
-    } else {
+    } else {                                                        
       // only do accelerometer based stuff if the remote isn't active (?)
 
       if ( accelerometer->position_changed) {
