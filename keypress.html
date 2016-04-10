@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+
+	var A = 188;//
+	var B = 190;//
+
+	var a = [];
+	var b = [];
+
+	var firstEvent = 0;
+	var lastAEvent = 0;
+
+	//var right = [0];
+
+    $("input").keyup(function(event){ 
+
+    	var now = Date.now();
+
+
+    	if ( event.which ===A && a.length%2 == 1) {
+    		var mark = Math.ceil((now-lastAEvent)/10);
+
+    		while ( mark > 254 ) {
+    			a.push([254,0]);
+    			mark -= 254;    			
+    		}
+
+    		a.push(mark);
+    		lastAEvent = now;
+    		console.log(a);
+    	}
+    	if ( event.which ===B && b.length%2 == 1) {
+    		var mark = Math.ceil((now-lastBEvent)/10);
+    		while ( mark > 254 ) {
+    			b.push([254,0]);
+    			mark -= 254;    			
+    		}
+    		b.push(mark);
+        	lastBEvent = now;
+    	}
+
+    	console.log(event.which);
+    });
+    $("input").keydown(function(event){ 
+
+		var now = Date.now();
+
+    	if ( !firstEvent ) {
+    		lastAEvent = now;
+    		lastBEvent = now;
+    		firstEvent = 1;
+    	}
+
+    	if ( event.which ===A && a.length%2 == 0) {
+    		var mark = Math.ceil((now-lastAEvent)/10);
+    		while ( mark > 254 ) {
+    			a.push([254,0]);
+    			mark -= 254;    			
+    		}
+    		a.push(mark);
+        	lastAEvent = now;
+    	}
+    	if ( event.which ===B && b.length%2 == 0) {
+    		var mark = Math.ceil((now-lastBEvent)/10);
+    		while ( mark > 254 ) {
+    			b.push([254,0]);
+    			mark -= 254;    			
+    		}
+    		b.push(mark);
+        	lastBEvent = now;
+    	}
+
+    	$("div").html("var left = [" + a+"]\n;var right = [" + b+"];");
+
+    	console.log(event.which);
+
+    });
+});
+</script>
+</head>
+<body>
+
+Enter your name: <input type="text">
+
+<p>Press buttons!</p>
+<div />
+
+</body>
+</html>
