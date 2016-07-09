@@ -1,3 +1,4 @@
+/**
 #ifndef RemoteControl_h
 #define RemoteControl_h
 
@@ -49,3 +50,4 @@ class RemoteControl
 };
 
 #endif
+*/
