@@ -73,8 +73,8 @@ void setup() {
 	relay_setup();
 
   // Initalize pin modes
-  pinMode(RELAY_0_PIN, OUTPUT); // not needed
-  pinMode(RELAY_1_PIN, OUTPUT); // not needed
+//  pinMode(RELAY_0_PIN, OUTPUT); // not needed
+//  pinMode(RELAY_1_PIN, OUTPUT); // not needed
   pinMode(LED, OUTPUT);
 
 //  pinMode(BUTTON_0_LED_PIN, OUTPUT);
@@ -83,13 +83,13 @@ void setup() {
 //  pinMode(BUTTON_1_PIN, INPUT_PULLUP); 
 
   // Blink the LED for some fun to create a delay before loop() begins
-  for ( int i = 0; i < 3; i++ ) {
-    
-    digitalWrite(LED, HIGH);
-  	delay(100+i*100);
-  	digitalWrite(LED, LOW);
-  	delay(100+i*100);
-  }
+//  for ( int i = 0; i < 3; i++ ) {
+//    
+//    digitalWrite(LED, HIGH);
+//  	delay(100+i*100);
+//  	digitalWrite(LED, LOW);
+//  	delay(100+i*100);
+//  }
 //  digitalWrite(BUTTON_0_LED_PIN, LOW);  // unused currently, set to LOW anyway
 //  digitalWrite(BUTTON_1_LED_PIN, LOW);  // unused currently, set to LOW anyway
   

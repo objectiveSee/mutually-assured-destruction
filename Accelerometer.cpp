@@ -12,12 +12,12 @@
 
 // #include "Settings.h"
 
-#define MAD_ACCELEROMETER_LOGGING 1
+#define MAD_ACCELEROMETER_LOGGING 0
 
 // .25 and -.30
 // #define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
 // #define ACCELEROMETER_THRESHOLD_NEGATIVE -0.25f
-#define ACCELEROMETER_AT_TOP_DURATION 80 // in ms
+#define ACCELEROMETER_AT_TOP_DURATION 60 // in ms
 
 // C function declarations. Implementation below.
 float averageMeasuresCalc(float * measures );
@@ -198,7 +198,7 @@ AccelerometerPosition positionForValue(float value) {
 
   // hard coding values for transformus. adjust in field :D
 
-    if ( value > 0.18f ) {
+    if ( value > 0.32f ) {
       return AccelerometerPositionSide0Top;
     } else if ( value < -.18f ) {
       return AccelerometerPositionSide1Top;

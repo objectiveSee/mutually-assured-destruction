@@ -46,7 +46,7 @@ const unsigned char LRM_A[] PROGMEM = {0, 80, 40, 80, STOP};
 const unsigned char LRM_B[] PROGMEM = {40, 80, 40, 80, STOP};
 
 // Single Button Press Pattern
-const unsigned char SINGLE_BUTTON_PRESS[] PROGMEM = {0, 200, STOP};
+const unsigned char SINGLE_BUTTON_PRESS[] PROGMEM = {0, 10, STOP};
 
 // Danny G
 const unsigned char GOLDBERG_A[] PROGMEM = {100, 4, 4, 8, 100, 4, 4, 8, 1, 1, 2, 2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128, 254, 128, 100, 50, STOP};
