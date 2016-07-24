@@ -88,7 +88,7 @@ void Accelerometer::loop()
   float acceleration = event.acceleration.x;
   #if MAD_ACCELEROMETER_LOGGING
   Serial.print(F("X=\t")); Serial.println(acceleration);
-#endif
+  #endif
 
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
   last_measures[last_measures_index] = acceleration;
@@ -101,9 +101,10 @@ void Accelerometer::loop()
   if ( position == currentPosition ) {
 
     last_sample_with_same_position = timeNow;
-#if MAD_ACCELEROMETER_LOGGING
-//    Serial.print("Position is "); printPosition(currentPosition,1);
-#endif
+    #if MAD_ACCELEROMETER_LOGGING
+    //    Serial.print("Position is "); printPosition(currentPosition,1);
+    #endif
+  
   } else {
 
     unsigned long timeSinceLastSame = timeNow - last_sample_with_same_position;
