@@ -158,18 +158,26 @@ void Accelerometer::log() {
 
 #define MAD_ACCELEROMETER_ADJUST_AMOUNT 0.01f
 
-void Accelerometer::storeCurrentAngleToSide(AccelerometerPosition side) {
+void Accelerometer::storeCurrentAngleForSide() {
 
-  if ( side == AccelerometerPositionSide0Top ) {
-    my_settings.accelerometer_angle_positive = angle_position();
-  } else if ( side == AccelerometerPositionSide1Top ) {
-    my_settings.accelerometer_angle_negative= angle_position();
+  float angle = angle_position();
+
+  // use sign on the angle to determine which side to set the angle for
+  if ( angle > 0  ) {
+    my_settings.accelerometer_angle_positive = angle;
+  } else {
+    my_settings.accelerometer_angle_negative= angle;
   }
-  if ( my_settings.accelerometer_angle_positive < 0 || my_settings.accelerometer_angle_negative > 0 ) {
-    Serial.print("WARNING: Angles set may be incorrect: ");
-    Serial.print("Positive: "); Serial.print(my_settings.accelerometer_angle_positive);
-    Serial.print("Negative: "); Serial.println(my_settings.accelerometer_angle_negative);
+  if ( angle < 0.1 && angle > -0.1 ) {
+    Serial.println(F("WARNING: Setting trigger angles to a potentially poor value"));
   }
+  
+  #if MAD_ACCELEROMETER_LOGGING
+  Serial.print("Updating trigger angles to: ");
+  Serial.print("Positive: "); Serial.print(my_settings.accelerometer_angle_positive);
+  Serial.print("Negative: "); Serial.println(my_settings.accelerometer_angle_negative);
+  #endif
+  
   saveConfig();  
 };
 
