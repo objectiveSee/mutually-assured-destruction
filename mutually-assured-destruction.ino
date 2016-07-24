@@ -162,7 +162,7 @@ void loop() {
   // must call so LED is updated w/ time
   loop_led();
 
-  delay(20);  // prevent us from spending all the time inside loop() so interrupt based things can happen
+  delay(10);  // prevent us from spending all the time inside loop() so interrupt based things can happen
 }
 
 void relay_setup() {

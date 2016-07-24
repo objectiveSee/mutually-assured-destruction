@@ -118,9 +118,16 @@ unsigned char Relay::patternCharAtIndex(const unsigned char * progmem_addr, unsi
   return myChar;
 }
 
+
 void Relay::setOnWithPattern(const unsigned char * pattern) {
 
   if ( !pattern ) {
+    return;
+  }
+
+  // quick hack to prevent multiple poofs w/in X seconds at Adam's wedding. (X was 2 @ adams wedding)
+  // TODO: solve this problem in a different class such as the main .ino or something less specific to Relays.
+  if ( millis() - last_changed < 500 ) {
     return;
   }
   pattern_current = (unsigned char *)pattern; // cast from `const`
