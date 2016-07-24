@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
 #include "Button.h"
+#include "build.h"
 
 #define DEBOUNCE_DURATION 20
-#define MAD_BUTTON_LOGGING 0
 
 Button::Button( int pin_num )
 {

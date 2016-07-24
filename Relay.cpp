@@ -1,16 +1,22 @@
 #include <Arduino.h>
 #include "Relay.h"
+#include "build.h"
+
+/*
+ * Defines and class configuration
+ */
 
 // Relay is active low, so you need a 0 to turn it on.
 #define RELAY_ON 0
 #define RELAY_OFF 1
 #define MAX_TIME_ON 1000
-#define MAD_RELAY_LOGGING 1
 
+// Multiplier used to convert the numbers in our patterns into ms (the patterns use 1/100th of second not 1000ths).
 #define PATTERN_INTERVAL_MULTIPLIER (int)10
 
-
-// Class Begin
+/*
+ * Relay Class Implementation
+ */
 Relay::Relay( int whatPin )
 {
   // initialize variables
@@ -19,14 +25,10 @@ Relay::Relay( int whatPin )
   last_changed = millis();
   pattern_current = 0;
 
-
   // initialize physical objects
   pinMode( pin, OUTPUT );
 
-  // don't forget that we don't know the state of the pin
-  // so give it one
-  digitalWrite( pin, RELAY_OFF );
-
+  // don't forget that we don't know the state of the pin so give it one
   off();
 }
 

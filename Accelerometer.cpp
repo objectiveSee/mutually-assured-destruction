@@ -2,34 +2,43 @@
 #include "Accelerometer.h"
 #include <Wire.h>
 #include "Arduino.h"
-
-// #include <stdlib.h>
 #include <Adafruit_MMA8451.h>
 #include <Adafruit_Sensor.h>
+#include "build.h"
 
 // #define MOUNTING_AXIS_PRIMARY 0
 // #define MOUNTING_AXIS_SECONDARY 0
 
 // #include "Settings.h"
+/**
+ * Define the angle that determine where the Top and Bottom positions are of the seesaw.
+ * This will always need to be adjust in the field for uneven groud.
+ * TODO: Use persistent memory and make a way to tweak these values w/o re-flashing the board.
+ */
+#define ACCELEROMETER_THRESHOLD_POSITIVE 0.32f
+#define ACCELEROMETER_THRESHOLD_NEGATIVE -.18f
 
-#define MAD_ACCELEROMETER_LOGGING 0
-
-// .25 and -.30
-// #define ACCELEROMETER_THRESHOLD_POSITIVE 0.20f
-// #define ACCELEROMETER_THRESHOLD_NEGATIVE -0.25f
+/*
+ * Amount of time seesaw must be at a position for it to be registered. Sort of like debouncing a button.
+ */
 #define ACCELEROMETER_AT_TOP_DURATION 60 // in ms
 
-// C function declarations. Implementation below.
+/*
+ * Function Declarations
+ */
 float averageMeasuresCalc(float * measures );
 AccelerometerPosition positionForValue(float value);
 void printPosition(AccelerometerPosition position, bool newLine);
 void logAdjustment(int side, float value);
 
-// Statics
+/*
+ * Static Memory
+ */
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
 
-#pragma mark - Accelerometer Class
-
+/*
+ * Accelerometer Class Implementation
+ */
 Accelerometer::Accelerometer()
 {
   for ( uint8_t i = 0; i < ACCELEROMETER_COUNT_MESASURES; i++ ) {
@@ -183,8 +192,9 @@ void Accelerometer::adjustSide(AccelerometerPosition side, bool up) {
 
 };
 
-#pragma mark - C helpers
-
+/*
+ * C helpers
+ */
 void logAdjustment(int side, float value) {
 #if MAD_ACCELEROMETER_LOGGING
   Serial.print(F("Adjustment: Side ")); Serial.print(side); Serial.print(F(" = ")); Serial.println(value);
@@ -198,9 +208,9 @@ AccelerometerPosition positionForValue(float value) {
 
   // hard coding values for transformus. adjust in field :D
 
-    if ( value > 0.32f ) {
+    if ( value > ACCELEROMETER_THRESHOLD_POSITIVE ) {
       return AccelerometerPositionSide0Top;
-    } else if ( value < -.18f ) {
+    } else if ( value < ACCELEROMETER_THRESHOLD_NEGATIVE ) {
       return AccelerometerPositionSide1Top;
     }
 //  }
