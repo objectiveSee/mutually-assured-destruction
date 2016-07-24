@@ -1,3 +1,4 @@
+/**
 #include <Arduino.h>
 #include "RemoteControl.h"
 #include <IRLib.h>
@@ -155,3 +156,4 @@ RemoteCommand RemoteControl::loop() {
 void RemoteControl::clearCommand() {
   newCommand = false;
 }
+*/

@@ -1,4 +1,4 @@
-#include <Arduino.h>
+/**#include <Arduino.h>
 #include "Lights.h"
 #include "Adafruit_NeoPixel.h"
 
@@ -112,4 +112,4 @@ void Lights::off()
 uint32_t Lights::Color(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
-
+*/

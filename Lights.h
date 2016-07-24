@@ -1,4 +1,4 @@
-#ifndef Lights_h
+/*#ifndef Lights_h
 #define Lights_h
 
 //class Adafruit_NeoPixel;  // forward declaration of a class
@@ -29,3 +29,4 @@ class Lights
 };
 
 #endif
+*/

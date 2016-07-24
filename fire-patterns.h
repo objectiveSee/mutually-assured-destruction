@@ -1,5 +1,16 @@
 #include <avr/pgmspace.h>
 
+/**
+ *  Patterns are defined in the following way:
+ *  
+ *  Patterns alternate specifying the OFF and ON durations in deciseconds (10ms) 
+ *  For example: {<time off>, <time on>, <time off>...} 
+ *  {0,10,20} would be off for 0 seconds, on for 100ms, then off for 200ms.
+ *  Values must be between 0 and 254 inclusively.
+ *  The value of 255 is reserved for a stop character so cannot be used, therefor the max duration of a burst is 2540ms or 2.54 seconds
+ *  
+ */
+
 #define STOP 0xFF
 
 // Static Memory (Patterns)
@@ -21,7 +32,7 @@ const unsigned char RAPID_BURST_100MS[] PROGMEM = {0, RAPID_ON_DURATION_2, RAPID
 #define RAPID_OFF_DURATION_3 3
 const unsigned char RAPID_BURST_SUPERFAST[] PROGMEM = {0, RAPID_ON_DURATION_3, RAPID_OFF_DURATION_3, RAPID_ON_DURATION_3, RAPID_OFF_DURATION_3, RAPID_ON_DURATION_3, RAPID_OFF_DURATION_3, RAPID_ON_DURATION_3, RAPID_OFF_DURATION_3, STOP};
 
-const unsigned char SINGLE_BURST[] PROGMEM = {0, 30, STOP};
+const unsigned char SINGLE_BURST[] PROGMEM = {0, 200, STOP};
 
 const unsigned char JAWS_LEFT[] PROGMEM = {0,62,118,0,254,52,121,20,60,20,53,12,59,14,13,12,8,9,10,11,8,STOP};
 const unsigned char JAWS_RIGHT[] PROGMEM = {241,75,209,40,83,17,60,19,47,16,40,8,13,9,10,9,9,11,7,STOP};
@@ -35,7 +46,7 @@ const unsigned char LRM_A[] PROGMEM = {0, 80, 40, 80, STOP};
 const unsigned char LRM_B[] PROGMEM = {40, 80, 40, 80, STOP};
 
 // Single Button Press Pattern
-const unsigned char SINGLE_BUTTON_PRESS[] PROGMEM = {0, 30, STOP};
+const unsigned char SINGLE_BUTTON_PRESS[] PROGMEM = {0, 10, STOP};
 
 // Danny G
 const unsigned char GOLDBERG_A[] PROGMEM = {100, 4, 4, 8, 100, 4, 4, 8, 1, 1, 2, 2, 4, 4, 8, 8, 16, 16, 32, 32, 64, 64, 128, 128, 254, 128, 100, 50, STOP};

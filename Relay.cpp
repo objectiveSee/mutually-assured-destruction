@@ -62,7 +62,7 @@ bool Relay::running()
   return run;
 }
 
-#pragma mark - Should be in Subclass for Fire Relay
+// Should be in Subclass for Fire Relay
 
 void Relay::loop() {
 
@@ -75,9 +75,7 @@ void Relay::loop() {
     unsigned long timeSincePatternStart = now - pattern_time_start;
     unsigned long patternTime = 0;
 
-    // Pattern alternatates durations of on and off, starting with off.
-    // for example : 100,200,300,400 = On (100 ms), Off(200 ms), etc
-
+    // Pattern alternatates durations of OFF and ON, starting with OFF.
     // todo when pattern finishes, turn off and set pattern_current to nil
 
     for ( unsigned char i = 0; i < pattern_length; i++ ) {
@@ -90,7 +88,7 @@ void Relay::loop() {
         // we are inside this interval of the pattern
         isOn = ((i%2) == 1);
         matched = true;
-        // Serial.print("matched on "); Serial.println(i);
+//         Serial.print("matched on "); Serial.println(i);
         break;
       }
 
@@ -120,9 +118,16 @@ unsigned char Relay::patternCharAtIndex(const unsigned char * progmem_addr, unsi
   return myChar;
 }
 
+
 void Relay::setOnWithPattern(const unsigned char * pattern) {
 
   if ( !pattern ) {
+    return;
+  }
+
+  // quick hack to prevent multiple poofs w/in X seconds at Adam's wedding. (X was 2 @ adams wedding)
+  // TODO: solve this problem in a different class such as the main .ino or something less specific to Relays.
+  if ( millis() - last_changed < 500 ) {
     return;
   }
   pattern_current = (unsigned char *)pattern; // cast from `const`
