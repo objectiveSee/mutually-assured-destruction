@@ -12,6 +12,7 @@
 #include "Accelerometer.h"
 #include "Relay.h"
 #include "fire-patterns.h"
+#include "Settings.h"
 
 /**
  * Static Members
@@ -30,8 +31,8 @@ static unsigned char burst_mode = 1;
  */
 void relay_setup();
 const unsigned char * current_burst_pattern();
-void loop_led();
-void blink_led();
+//void loop_led();
+//void blink_led();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,6 @@ void setup() {
 
 	Serial.begin(9600);     // Begin serial
   relay_setup();          // call before delay because relays are active low so we want to set to be HIGH as soon as possible
-  pinMode(LED, OUTPUT);   // Initalize pin modes
   blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
   
 #if MAD_LOGGING
@@ -51,26 +51,31 @@ void setup() {
   delay(100);
 #endif
 
+  loadConfig(); // load important values about angles and other app settings that need to persist
+
   // Initalize the Accelerometer module
   accelerometer = new Accelerometer();
   accelerometer->setup();
 
 #if MAD_LOGGING
-  Serial.println(F("Accel setup complete"));
+  if ( accelerometer->working ) {
+    Serial.println(F("Accel setup complete"));    
+  } else {
+    Serial.println(F("Accel setup failed."));
+  }
 #endif
 }
 
 void loop() {
   
-  // debugShouldBlink();
-  // return;
-
   // Must call loop() prior to using accelerometer objects to ensure they have updated themselves internally
   //  Serial.println(F("loop"));
   accelerometer->loop();
   // accelerometer->log();
-  
-  if ( accelerometer->position_changed && accelerometer->last_position == AccelerometerPositionNone) {  // look for transitions from NONE to SIDE0TOP or SIDE1TOP
+
+  // look for transitions from NONE to SIDE0TOP or SIDE1TOP
+  if ( accelerometer->position_changed && 
+       accelerometer->last_position == AccelerometerPositionNone) {  
 
     if ( accelerometer->position == AccelerometerPositionSide0Top ) {
       Serial.println("Pattern 1 On!");
@@ -88,42 +93,11 @@ void loop() {
   r0->loop();
   r1->loop();
 
-  // LED blinks are timed with the system clock, so call loop to update it.
-  loop_led();
-
   // prevent us from spending all the time inside loop() so interrupt based things can happen
   delay(10);  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void debugShouldBlink() {
-  //  unsigned long nowMs = millis();
-//  static boolean isBlinked = false;
-//  boolean shouldBlink = ((nowMs / 3000) % 2);
-//  if( shouldBlink != isBlinked ) {
-//
-//    if ( shouldBlink ) {
-//      r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
-//      r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
-//      Serial.println("Mode changed. Pattern ON");
-//    } else {
-//      Serial.println("Mode changed. Doing nothing");
-//    }
-//    isBlinked = shouldBlink;
-//  }
-//
-//  if ( shouldBlink ) {
-//    digitalWrite(LED, HIGH);
-//  } else {
-//    digitalWrite(LED, LOW);
-//  }
-//  r0->loop();
-//  r1->loop();
-//  delay(30);
-//  return;
-delay(30);
-}
 
 /**
  * Setup the Relay objects
@@ -159,45 +133,15 @@ const unsigned char * current_burst_pattern() {
 }
 
 /**
- * Varilables used to keep track of blinking state of LED
- */
-static unsigned long led_blink_end = 0;
-#define BLINK_DURATION_MS 500
-
-/**
- * Updates the on-board LED as to whether it should be ON or OFF based on the blinking state
- * TODO: Clean this up. Right now it ignores `led_blink_end` and just blinks every second.
- */
-void loop_led() {
-
-  unsigned long nowMs = millis();
-
-  boolean shouldBlink = ((nowMs / 1000) % 2);
-
-  //now < led_blink_end 
-  if ( shouldBlink) {
-    digitalWrite(LED, HIGH); 
-  } else {
-    digitalWrite(LED, LOW);
-  }
-
-}
-
-/**
- * Unused. See TODO in loop_led().
- */
-void blink_led() {
-  led_blink_end = millis() + BLINK_DURATION_MS;
-}
-
-/**
  * Blinks the on-board LED when setup() is called. Give some time to reset Teensy if needed.
+ * Dont use LED after setup() as pin 13 is also used for the nRF24L01 chip wiring.
  */
 void blinkLEDOnBootup() {
+  pinMode(LED, OUTPUT);
   for ( int i = 0; i < 3; i++ ) {
     digitalWrite(LED, HIGH);
-    delay(200);
+    delay(500);
     digitalWrite(LED, LOW);
-    delay(200);
-  }  
+    delay(500);
+  }
 }

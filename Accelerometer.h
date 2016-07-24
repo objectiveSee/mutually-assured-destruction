@@ -23,7 +23,7 @@ public:
     bool position_changed;  // set for 1 cycle of loop() only. Better check it fool!
     bool working;
 
-    void adjustSide(AccelerometerPosition side, bool up);
+    void storeCurrentAngleToSide(AccelerometerPosition side);
 
 //    ~Accelerometer();
 

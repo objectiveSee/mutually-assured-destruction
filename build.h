@@ -28,4 +28,7 @@
 
 #define MAD_RELAY_LOGGING 1
 
+#define MAD_SETTINGS_LOGGING 1
+
+
 

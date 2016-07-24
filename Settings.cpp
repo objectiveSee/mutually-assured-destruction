@@ -9,82 +9,66 @@
 #include <EEPROM.h>
 #include <Arduino.h>
 #include "Settings.h"
+#include "build.h"
 
-#define MAD_SETTINGS_LOGGING 1
+// Tell it where to store your config data in EEPROM
+#define CONFIG_START 32
+
+// ID of the settings block
+#define CONFIG_VERSION "ss02"
 
 StoreStruct my_settings = {
-  // The default values
-  0.2f,
-  -0.25f,
-  // 220, 1884,
-  // 'c',
-  // 10000,
-  // {4.5, 5.5, 7, 8.5, 10, 12},
-  CONFIG_VERSION
+  's','s','0','2',
+  25.0f,
+  -25.0f
 };
 
-bool my_settings_loaded = false;
+
+bool EEPRomVersionCheck() {
+   if (EEPROM.read(CONFIG_START + 0) == CONFIG_VERSION[0] &&
+      EEPROM.read(CONFIG_START + 1) == CONFIG_VERSION[1] &&
+      EEPROM.read(CONFIG_START + 2) == CONFIG_VERSION[2] &&
+      EEPROM.read(CONFIG_START + 3) == CONFIG_VERSION[3]) {
+        return true;
+   }
+   return false;
+}
 
 void loadConfig() {
-  // To make sure there are settings, and they are YOURS!
-  // If nothing is found it will use the default settings.
-  if (//EEPROM.read(CONFIG_START + sizeof(settings) - 1) == settings.version_of_program[3] // this is '\0'
-      EEPROM.read(CONFIG_START + sizeof(my_settings) - 2) == my_settings.version_of_program[2] &&
-      EEPROM.read(CONFIG_START + sizeof(my_settings) - 3) == my_settings.version_of_program[1] &&
-      EEPROM.read(CONFIG_START + sizeof(my_settings) - 4) == my_settings.version_of_program[0])
-  { // reads settings from EEPROM
+  
+  // To make sure there are settings, and they are YOURS! If nothing is found it will use the default settings.
+ if (EEPRomVersionCheck() ) {
+    // read settings from EEPROM
     for (unsigned int t=0; t<sizeof(my_settings); t++) {
       *((char*)&my_settings + t) = EEPROM.read(CONFIG_START + t);
     }
 
     #if MAD_SETTINGS_LOGGING
-    // error writing to EEPROM
-    Serial.print("[SETTINGS] Loaded!  Float Value="); Serial.print(my_settings.accelerometer_angle_positive); Serial.println("!");
+    Serial.print("[SETTINGS] Loaded! Angles ="); Serial.print(my_settings.accelerometer_angle_positive); 
+    Serial.print(", "); Serial.print(my_settings.accelerometer_angle_negative); 
+    Serial.println(".");
     #endif
 
-    my_settings_loaded = true;
-
   } else {
+    #if MAD_SETTINGS_LOGGING
+    Serial.print("[SETTINGS] Using Default Settings. Angles ="); Serial.print(my_settings.accelerometer_angle_positive); 
+    Serial.print(", "); Serial.print(my_settings.accelerometer_angle_negative); 
+    Serial.println(".");
+    #endif
     // settings aren't valid! will overwrite with default settings
     saveConfig();
   }
 }
 
 void saveConfig() {
-  for (unsigned int t=0; t<sizeof(my_settings); t++)
-  {
-    // writes to EEPROM
+  for (unsigned int t=0; t<sizeof(my_settings); t++) {
     EEPROM.write(CONFIG_START + t, *((char*)&my_settings + t));
-    // and verifies the data
-    if (EEPROM.read(CONFIG_START + t) != *((char*)&my_settings + t))
-    {
-      #if MAD_SETTINGS_LOGGING
-      // error writing to EEPROM
-      Serial.println("[SETTINGS] Write Error");
-      #endif
-    } else {
-
-      #if MAD_SETTINGS_LOGGING
-      // error writing to EEPROM
-      Serial.println("[SETTINGS] Write Success!");
-      #endif
-    }
   }
+  #if MAD_SETTINGS_LOGGING
+  Serial.println("Config updated with new values");
+  #endif
 }
 
-// void setup() {
-//   loadConfig();
-// }
 
-// void loop() {
-//   // [...]
-//   int i = settings.c - 'a';
-//   // [...]
 
-//   // [...]
-//   settings.c = 'a';
-//   if (some_condition)
-//     saveConfig();
-//   // [...]
-// }
-// [Get Code]
+

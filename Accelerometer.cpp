@@ -5,18 +5,7 @@
 #include <Adafruit_MMA8451.h>
 #include <Adafruit_Sensor.h>
 #include "build.h"
-
-// #define MOUNTING_AXIS_PRIMARY 0
-// #define MOUNTING_AXIS_SECONDARY 0
-
-// #include "Settings.h"
-/**
- * Define the angle that determine where the Top and Bottom positions are of the seesaw.
- * This will always need to be adjust in the field for uneven groud.
- * TODO: Use persistent memory and make a way to tweak these values w/o re-flashing the board.
- */
-#define ACCELEROMETER_THRESHOLD_POSITIVE 0.32f
-#define ACCELEROMETER_THRESHOLD_NEGATIVE -.18f
+#include "Settings.h"
 
 /*
  * Amount of time seesaw must be at a position for it to be registered. Sort of like debouncing a button.
@@ -169,27 +158,19 @@ void Accelerometer::log() {
 
 #define MAD_ACCELEROMETER_ADJUST_AMOUNT 0.01f
 
-void Accelerometer::adjustSide(AccelerometerPosition side, bool up) {
+void Accelerometer::storeCurrentAngleToSide(AccelerometerPosition side) {
 
-  // todo not working so disabling before transformus
-
-  // if ( !my_settings_loaded ) {
-  //   return;
-  // }
-
-  // float adjustment = up ? MAD_ACCELEROMETER_ADJUST_AMOUNT : -MAD_ACCELEROMETER_ADJUST_AMOUNT;
-
-  // if ( side == AccelerometerPositionSide0Top ) {
-
-  //   my_settings.accelerometer_angle_positive += adjustment;
-  //   logAdjustment(0, my_settings.accelerometer_angle_positive);
-
-  // } else if ( side == AccelerometerPositionSide1Top ) {
-
-  //   my_settings.accelerometer_angle_negative += adjustment;
-  //   logAdjustment(1, my_settings.accelerometer_angle_negative);
-  // }
-
+  if ( side == AccelerometerPositionSide0Top ) {
+    my_settings.accelerometer_angle_positive = angle_position();
+  } else if ( side == AccelerometerPositionSide1Top ) {
+    my_settings.accelerometer_angle_negative= angle_position();
+  }
+  if ( my_settings.accelerometer_angle_positive < 0 || my_settings.accelerometer_angle_negative > 0 ) {
+    Serial.print("WARNING: Angles set may be incorrect: ");
+    Serial.print("Positive: "); Serial.print(my_settings.accelerometer_angle_positive);
+    Serial.print("Negative: "); Serial.println(my_settings.accelerometer_angle_negative);
+  }
+  saveConfig();  
 };
 
 /*
@@ -201,23 +182,23 @@ void logAdjustment(int side, float value) {
 #endif
 }
 
+/**
+ * Returns the `AccelerometerPosition` corresponding to the given input angle.
+ */
 AccelerometerPosition positionForValue(float value) {
 
-//  if ( my_settings_loaded ) {   // make sure settings is actually loaded
-//
-
-  // hard coding values for transformus. adjust in field :D
-
-    if ( value > ACCELEROMETER_THRESHOLD_POSITIVE ) {
-      return AccelerometerPositionSide0Top;
-    } else if ( value < ACCELEROMETER_THRESHOLD_NEGATIVE ) {
-      return AccelerometerPositionSide1Top;
-    }
-//  }
-
+  if ( value > my_settings.accelerometer_angle_positive ) {
+    return AccelerometerPositionSide0Top;
+  } else if ( value < my_settings.accelerometer_angle_negative) {
+    return AccelerometerPositionSide1Top;
+  }
+  
   return AccelerometerPositionNone;
 }
 
+/*
+ * Logs the position as a string and optionally prints a newline `\n`.
+ */
 void printPosition(AccelerometerPosition position, bool newLine) {
 
 #if MAD_ACCELEROMETER_LOGGING
