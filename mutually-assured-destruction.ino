@@ -56,30 +56,24 @@ void setup() {
 	Serial.begin(9600);     // Begin serial
   relay_setup();          // call before delay because relays are active low so we want to set to be HIGH as soon as possible
 
-#if MAD_LOGGING
-  Serial.println(F("It's a MAD World!"));
-#endif
+  LOGN(F("It's a MAD World!"));
   
   blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
   
   loadConfig(); // load important values about angles and other app settings that need to persist
 
-#if MAD_LOGGING
-  Serial.println(F("Begin Accelerometer Setup"));
+  LOGN(F("Begin Accelerometer Setup"));
   delay(100);
-#endif
 
   // Initalize the Accelerometer module
   accelerometer = new Accelerometer();
   accelerometer->setup();
 
-#if MAD_LOGGING
   if ( accelerometer->working ) {
-    Serial.println(F("Accelerometer setup complete"));    
+    LOGN(F("Accelerometer setup complete"));    
   } else {
-    Serial.println(F("Accelerometer setup failed."));
+    LOGN(F("Accelerometer setup failed."));
   }
-#endif
 }
 
 void loop() {
@@ -94,14 +88,28 @@ void loop() {
        accelerometer->last_position == AccelerometerPositionNone) {  
 
     if ( accelerometer->position == AccelerometerPositionSide0Top ) {   // RED
-      Serial.println("Pattern 1 On!");
-      r0->setOnWithPattern(SHAVE_LEFT);
+      cmd_poof(0x01);
       
     } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {  // BLUE
-      Serial.println("Pattern 2 On!");
-      r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
-
+      cmd_poof(0x02);
     }
+  }
+
+
+  // Check for Serial input commands
+  // TODO: specify Serial
+
+  byte incomingByte;
+  bool hadData = false;
+  while (Serial.available() > 0) {    // read the entire serial, and only process the last command
+    incomingByte = Serial.read();
+#if MAD_MAIN_LOGGING
+    Serial.print("Read a byte: "); Serial.println(incomingByte, HEX);
+#endif
+    hadData = true;
+  }
+  if ( hadData ) {
+    cmd_handle_from_serial(incomingByte);
   }
 
   // Relays call loop() on each main loop so they can update their internal state.
@@ -113,17 +121,37 @@ void loop() {
   delay(10);  
 }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Command handlers for commands  that can be sent to this board via Serial, RF, or some other comm channel
  */
 
+
+/*
+ * Passes a byte from Serial "API" into the command handlers
+ */
+void cmd_handle_from_serial(byte commandByte ) {
+  switch(commandByte) {
+    case 'L': cmd_poof(0x01); break;
+    case 'R': cmd_poof(0x02); break;
+    case 'B': cmd_poof(0x03); break;
+    case 'A': cmd_save_current_seesaw_angle(); break;
+    default:
+      LOGN("Unsupported command from serial.");
+      break;
+  }
+}
+
 /*
  * Calibrates the trigger angles of the seesaw.
  */
+
 void cmd_save_current_seesaw_angle() {
   // NOTE: could call loop() here to update angle, but assuming its been updated recently as it is always called inside loop()
+  LOGN(F("Handling Command: Save SeeSaw Angle"));
   accelerometer->storeCurrentAngleForSide();
 }
 
@@ -135,12 +163,26 @@ void cmd_save_current_seesaw_angle() {
  * 0x03 : Both Relays
  */
 void cmd_poof(byte which) {
+
+  // Just logging
+  LOG(F("Handling Command: Poof "));
+  if (( which & 0x01) && (which & 0x02)) {
+    LOGN(F("Both"));
+  } else if ( which & 0x01 ) {
+    LOGN(F("LEFT 0x01"));
+  } else if ( which & 0x02 ) {
+    LOGN(F("RIGHT 0x02"));
+  }
+
+  // Handle the command
   if ( which & 0x01 ) {
     r0->setOnWithPattern(SINGLE_BUTTON_PRESS);    
   }
   if ( which & 0x02 ) {
     r1->setOnWithPattern(SINGLE_BUTTON_PRESS);    
   }
+
+  // Call loop so the relays update internally
   r0->loop();
   r1->loop();
 }
@@ -187,7 +229,7 @@ const unsigned char * current_burst_pattern() {
  */
 void blinkLEDOnBootup() {
   pinMode(LED, OUTPUT);
-  for ( int i = 0; i < 3; i++ ) {
+  for ( int i = 0; i < 4; i++ ) {
     digitalWrite(LED, HIGH);
     delay(500);
     digitalWrite(LED, LOW);
