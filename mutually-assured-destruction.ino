@@ -38,6 +38,9 @@ static Accelerometer * accelerometer = 0;
 //static boolean stopped = 0;
 static unsigned char burst_mode = 1;
 
+static bool serial_input_enabled = true;
+static bool wireless_input_enabled = true;
+
 /**
  * Function Declerations
  */
@@ -98,18 +101,23 @@ void loop() {
 
   // Check for Serial input commands
   // TODO: specify Serial
-
-  byte incomingByte;
-  bool hadData = false;
-  while (Serial.available() > 0) {    // read the entire serial, and only process the last command
-    incomingByte = Serial.read();
-#if MAD_MAIN_LOGGING
-    Serial.print("Read a byte: "); Serial.println(incomingByte, HEX);
-#endif
-    hadData = true;
+  if ( serial_input_enabled ) {
+    byte incomingByte;
+    bool hadData = false;
+    while (Serial.available() > 0) {    // read the entire serial, and only process the last command
+      incomingByte = Serial.read();
+  #if MAD_MAIN_LOGGING
+      Serial.print("Read a byte: "); Serial.println(incomingByte, HEX);
+  #endif
+      hadData = true;
+    }
+    if ( hadData ) {
+      cmd_handle_from_serial(incomingByte);
+    }
   }
-  if ( hadData ) {
-    cmd_handle_from_serial(incomingByte);
+
+  if ( wireless_input_enabled ) {
+    
   }
 
   // Relays call loop() on each main loop so they can update their internal state.
@@ -182,9 +190,10 @@ void cmd_poof(byte which) {
     r1->setOnWithPattern(SINGLE_BUTTON_PRESS);    
   }
 
-  // Call loop so the relays update internally
-  r0->loop();
-  r1->loop();
+  // Ok to skip if this function is called from loop().
+  // --- Call loop so the relays update internally
+//  r0->loop();
+//  r1->loop();
 }
 
 
