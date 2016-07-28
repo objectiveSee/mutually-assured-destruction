@@ -15,6 +15,17 @@
 #include "fire-patterns.h"
 #include "Settings.h"
 
+
+// MUST BE BELOW build.h
+#ifdef MAD_MAIN_LOGGING
+ #define LOGN(x)  Serial.println (x)
+ #define LOG(x)  Serial.print (x)
+#else
+ #define LOGN(x)
+ #define LOG(x)
+#endif
+
+
 /**
  * Static Members
  */
