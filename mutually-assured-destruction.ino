@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_MMA8451.h>
 #include <Adafruit_Sensor.h>
+#include <CmdMessenger.h>
 
 /**
  * Project Files
@@ -43,15 +44,19 @@ void setup() {
 
 	Serial.begin(9600);     // Begin serial
   relay_setup();          // call before delay because relays are active low so we want to set to be HIGH as soon as possible
-  blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
-  
+
 #if MAD_LOGGING
   Serial.println(F("It's a MAD World!"));
-  Serial.println(F("Begin accel setup"));
+#endif
+  
+  blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
+  
+  loadConfig(); // load important values about angles and other app settings that need to persist
+
+#if MAD_LOGGING
+  Serial.println(F("Begin Accelerometer Setup"));
   delay(100);
 #endif
-
-  loadConfig(); // load important values about angles and other app settings that need to persist
 
   // Initalize the Accelerometer module
   accelerometer = new Accelerometer();
@@ -59,9 +64,9 @@ void setup() {
 
 #if MAD_LOGGING
   if ( accelerometer->working ) {
-    Serial.println(F("Accel setup complete"));    
+    Serial.println(F("Accelerometer setup complete"));    
   } else {
-    Serial.println(F("Accel setup failed."));
+    Serial.println(F("Accelerometer setup failed."));
   }
 #endif
 }
@@ -77,11 +82,11 @@ void loop() {
   if ( accelerometer->position_changed && 
        accelerometer->last_position == AccelerometerPositionNone) {  
 
-    if ( accelerometer->position == AccelerometerPositionSide0Top ) {
+    if ( accelerometer->position == AccelerometerPositionSide0Top ) {   // RED
       Serial.println("Pattern 1 On!");
-      r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
+      r0->setOnWithPattern(SHAVE_LEFT);
       
-    } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {
+    } else if ( accelerometer->position == AccelerometerPositionSide1Top ) {  // BLUE
       Serial.println("Pattern 2 On!");
       r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
 
@@ -96,6 +101,39 @@ void loop() {
   // prevent us from spending all the time inside loop() so interrupt based things can happen
   delay(10);  
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Command handlers for commands  that can be sent to this board via Serial, RF, or some other comm channel
+ */
+
+/*
+ * Calibrates the trigger angles of the seesaw.
+ */
+void cmd_save_current_seesaw_angle() {
+  // NOTE: could call loop() here to update angle, but assuming its been updated recently as it is always called inside loop()
+  accelerometer->storeCurrentAngleForSide();
+}
+
+/*
+ * Does a default poof pattern on 1 or both of the cannons. Uses a bitmask to specify which ones to poof.
+ * Values for `which`:
+ * 0x01 : Relay 0
+ * 0x02 : Relay 1
+ * 0x03 : Both Relays
+ */
+void cmd_poof(byte which) {
+  if ( which & 0x01 ) {
+    r0->setOnWithPattern(SINGLE_BUTTON_PRESS);    
+  }
+  if ( which & 0x02 ) {
+    r1->setOnWithPattern(SINGLE_BUTTON_PRESS);    
+  }
+  r0->loop();
+  r1->loop();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

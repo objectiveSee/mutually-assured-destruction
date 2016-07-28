@@ -45,15 +45,17 @@ Accelerometer::Accelerometer()
 
 void Accelerometer::setup()
 {
-
   if (! mma.begin()) {
     // always log this because it's so crucial
     Serial.println(F("Accelerometer error"));
     return;
   }
+//  Serial.println(F("Range"));
   working = true;
 
   mma.setRange(MMA8451_RANGE_2_G);
+
+//  Serial.println(F("Log Done"));
 
 #if MAD_ACCELEROMETER_LOGGING
   Serial.println(F("MMA8451 found!"));
@@ -86,15 +88,18 @@ void Accelerometer::loop()
   mma.getEvent(&event);
 
   float acceleration = event.acceleration.x;
-  #if MAD_ACCELEROMETER_LOGGING
-  Serial.print(F("X=\t")); Serial.println(acceleration);
-  #endif
+//  #if MAD_ACCELEROMETER_LOGGING
+//  Serial.print(F("X=\t")); Serial.println(acceleration);
+//  #endif
 
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
   last_measures[last_measures_index] = acceleration;
 
   // update variables
   average_measures = averageMeasuresCalc(&last_measures[0]);
+  #if MAD_ACCELEROMETER_LOGGING
+  Serial.print(F("Average=\t")); Serial.println(average_measures);
+  #endif
 
   AccelerometerPosition currentPosition = positionForValue(average_measures);
 
@@ -102,7 +107,7 @@ void Accelerometer::loop()
 
     last_sample_with_same_position = timeNow;
     #if MAD_ACCELEROMETER_LOGGING
-    //    Serial.print("Position is "); printPosition(currentPosition,1);
+        Serial.print("Position is "); printPosition(currentPosition,1);
     #endif
   
   } else {
@@ -195,10 +200,10 @@ void logAdjustment(int side, float value) {
  * Returns the `AccelerometerPosition` corresponding to the given input angle.
  */
 AccelerometerPosition positionForValue(float value) {
-
-  if ( value > my_settings.accelerometer_angle_positive ) {
+  
+  if ( value > 0.2 ) {
     return AccelerometerPositionSide0Top;
-  } else if ( value < my_settings.accelerometer_angle_negative) {
+  } else if ( value < -0.2) {
     return AccelerometerPositionSide1Top;
   }
   

@@ -15,12 +15,12 @@
 #define CONFIG_START 32
 
 // ID of the settings block
-#define CONFIG_VERSION "ss02"
+#define CONFIG_VERSION "ss03" // must also change `my_settings`
 
 StoreStruct my_settings = {
-  's','s','0','2',
-  25.0f,
-  -25.0f
+  's','s','0','3',    // must also change CONFIG_VERSION
+  0.2f,
+  -0.2f
 };
 
 

@@ -3,8 +3,8 @@
 
 typedef enum  {
   AccelerometerPositionNone = 0,
-  AccelerometerPositionSide0Top,
-  AccelerometerPositionSide1Top
+  AccelerometerPositionSide0Top,    // RED (per LEDs soldered to the PCB)
+  AccelerometerPositionSide1Top     // BLUE (per LEDs soldered to the PCB)
 } AccelerometerPosition;
 
 #define ACCELEROMETER_COUNT_MESASURES 4
