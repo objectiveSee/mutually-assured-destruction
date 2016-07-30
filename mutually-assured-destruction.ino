@@ -6,6 +6,14 @@
 #include <Adafruit_Sensor.h>
 #include <CmdMessenger.h>
 
+// Required by MIRF
+#include <SPI.h>
+#include <Mirf.h>
+#include <nRF24L01.h>
+#include <MirfHardwareSpiDriver.h>
+
+#define PAYLOAD_SIZE 4
+
 /**
  * Project Files
  */
@@ -45,6 +53,7 @@ static bool wireless_input_enabled = true;
  * Function Declerations
  */
 void relay_setup();
+void wireless_setup();
 const unsigned char * current_burst_pattern();
 //void loop_led();
 //void blink_led();
@@ -71,6 +80,17 @@ void setup() {
   // Initalize the Accelerometer module
   accelerometer = new Accelerometer();
   accelerometer->setup();
+
+  // Wireless configure
+  wireless_setup();
+
+  // Unused LEDs setup as output LEDs
+  #ifdef MAD_USE_UNUSED_LEDS_FOR_STATUS
+  pinMode(UNUSED_RELAY_PIN_0, OUTPUT);
+  pinMode(UNUSED_RELAY_PIN_1, OUTPUT);
+  digitalWrite(UNUSED_RELAY_PIN_0, HIGH); // active low
+  digitalWrite(UNUSED_RELAY_PIN_1, HIGH); // active low
+  #endif
 
   if ( accelerometer->working ) {
     LOGN(F("Accelerometer setup complete"));    
@@ -116,8 +136,42 @@ void loop() {
     }
   }
 
+
+  // Check for wireless commands. Note: Interrupt pin is not connected on the SeeSaw Rev1.0 board.
   if ( wireless_input_enabled ) {
+
+    // Finish sending first
+    bool wasSending = false;
+    while (Mirf.isSending()) {
+      wasSending = true;
+    }
+    if ( wasSending ) {
+      delay(10);  // copied from library example. Adds a delay after sending for some reason, perhaps to let the data get pushed out fully
+    }
+
+    // Check for new data
+    byte payload[PAYLOAD_SIZE];
+    bool hadData = false;
+
+    // only process the last payload received in case there is more than 1 for some reason
+    // TODO: Assumption of only receiving 1 payload at a time could be tested.
+    while( Mirf.dataReady()) {  
+      
+      LOGN("MIRF: Getting data");
+      Mirf.getData(payload);
+      #if MAD_MAIN_LOGGING
+      Serial.print("MIRF: Read a payload: "); 
+      for ( byte i=0; i<PAYLOAD_SIZE; i++) {
+        Serial.print(payload[i], HEX);        
+      }
+      Serial.println("");
+      #endif
+      hadData = true;
+    }
     
+    if ( hadData ) {
+      cmd_handle_from_wireless(payload);
+    }
   }
 
   // Relays call loop() on each main loop so they can update their internal state.
@@ -154,6 +208,38 @@ void cmd_handle_from_serial(byte commandByte ) {
 }
 
 /*
+ * Passes a byte from Wireless "API" into the command handlers
+ *  Byte 0: Header (0x55)
+ *  Byte 1: Header 2 (0xAA) or Remote ID
+ *  Byte 2: Address/Command byte
+ *  Byte 3: Tail (0xFF)
+ */
+void cmd_handle_from_wireless(byte * commandRcvd ) {
+
+  if ( commandRcvd[0] != 0x55 ) {
+    LOGN("Wireless error: Header is not 0x55");
+    return;
+  } else if ( commandRcvd[3] != 0xFF ) {
+    LOGN("Wireless error: Tail is not 0xFF");
+    return;
+  }
+#if MAD_MAIN_LOGGING
+  Serial.print("Wireless received 0x"); Serial.print(commandRcvd[2], HEX);
+  Serial.print(" from remote ID# 0x"); Serial.print(commandRcvd[1], HEX);
+#endif
+
+  switch(commandRcvd[2]) {
+    case 0x07: cmd_poof(0x01); break;
+    case 0x09: cmd_poof(0x02); break;
+    case 0x08: cmd_poof(0x03); break;
+    case 0x0A: cmd_save_current_seesaw_angle(); break;
+    default:
+      LOGN("Unsupported command from wireless.");
+      break;
+  }
+}
+
+/*
  * Calibrates the trigger angles of the seesaw.
  */
 
@@ -161,10 +247,21 @@ void cmd_save_current_seesaw_angle() {
   // NOTE: could call loop() here to update angle, but assuming its been updated recently as it is always called inside loop()
   LOGN(F("Handling Command: Save SeeSaw Angle"));
   accelerometer->storeCurrentAngleForSide();
+  flashUnusedLEDsBlocking();
 }
 
+void flashUnusedLEDsBlocking() {
+  // Pins are active low
+  digitalWrite(UNUSED_RELAY_PIN_0, LOW);
+  digitalWrite(UNUSED_RELAY_PIN_1, LOW);
+  delay(2000);
+  digitalWrite(UNUSED_RELAY_PIN_0, HIGH);
+  digitalWrite(UNUSED_RELAY_PIN_1, HIGH);
+}
+
+
 /*
- * Does a default poof pattern on 1 or both of the cannons. Uses a bitmask to specify which ones to poof.
+ * Does a default poof pattern on 1 or both of the poofers. Uses a bitmask to specify which ones to poof.
  * Values for `which`:
  * 0x01 : Relay 0
  * 0x02 : Relay 1
@@ -207,6 +304,49 @@ void relay_setup() {
 	r1 = new Relay(RELAY_1_PIN);
   r0->clearPattern();
   r1->clearPattern();
+}
+
+/**
+ * Configure Wireless
+ */
+void wireless_setup() {
+  
+  // Set pins for the SeeSaw
+  Mirf.cePin = 9;
+  Mirf.csnPin = 10;
+
+  LOGN(F("Configuring Wirless..."));
+  Mirf.spi = &MirfHardwareSpi;
+  Mirf.init();
+
+  /*
+     Configure reciving address.
+  */
+  Mirf.setRADDR((byte *)"Unit1");
+
+  /*
+     Set the payload length to sizeof(unsigned long) the
+     return type of millis().
+
+     NB: payload on client and server must be the same.
+  */
+  Mirf.payload = PAYLOAD_SIZE;
+
+  /*
+     Write channel and payload config then power up reciver.
+  */
+
+  /*
+     To change channel:
+
+     Mirf.channel = 10;
+
+     NB: Make sure channel is legal in your area.
+  */
+  Mirf.config();
+
+  LOGN(F("Wireless config finished."));
+  
 }
 
 /*

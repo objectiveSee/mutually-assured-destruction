@@ -97,17 +97,19 @@ void Accelerometer::loop()
 
   // update variables
   average_measures = averageMeasuresCalc(&last_measures[0]);
-  #if MAD_ACCELEROMETER_LOGGING
-  Serial.print(F("Average=\t")); Serial.println(average_measures);
-  #endif
-
+  
   AccelerometerPosition currentPosition = positionForValue(average_measures);
 
   if ( position == currentPosition ) {
 
     last_sample_with_same_position = timeNow;
-    #if MAD_ACCELEROMETER_LOGGING
-        Serial.print("Position is "); printPosition(currentPosition,1);
+    #if MAD_ACCELEROMETER_LOGGING_VERBOSE
+        Serial.print(F("Average= ")); Serial.print(average_measures);
+        Serial.print(". \tPosition is "); printPosition(currentPosition,0);
+        Serial.print(". \tAngles are: ");
+        Serial.print(my_settings.accelerometer_angle_positive);
+        Serial.print(",");
+        Serial.println(my_settings.accelerometer_angle_negative);
     #endif
   
   } else {
@@ -118,9 +120,13 @@ void Accelerometer::loop()
       last_position = position;
       position = currentPosition;
 #if MAD_ACCELEROMETER_LOGGING
-      Serial.print(F("Position changed to "));
+      Serial.print(F("Average= ")); Serial.print(average_measures);
+      Serial.print(F(". \tPosition changed to "));
       printPosition(currentPosition,0);
-      Serial.println("!!");
+      Serial.print(". \tAngles are: ");
+      Serial.print(my_settings.accelerometer_angle_positive);
+      Serial.print(",");
+      Serial.println(my_settings.accelerometer_angle_negative);
 #endif
 
       changed = true;
@@ -170,21 +176,24 @@ void Accelerometer::storeCurrentAngleForSide() {
 
   // use sign on the angle to determine which side to set the angle for
   if ( angle > 0  ) {
+    Serial.println("Updating positive angle. ");
     my_settings.accelerometer_angle_positive = angle;
   } else {
-    my_settings.accelerometer_angle_negative= angle;
+    Serial.println("Updating negative angle. ");
+    my_settings.accelerometer_angle_negative = angle;
   }
-  if ( angle < 0.1 && angle > -0.1 ) {
+  if (( angle < 0.1 && angle > -0.1 ) || angle > 0.4 || angle < 0.4  ) {
     Serial.println(F("WARNING: Setting trigger angles to a potentially poor value"));
   }
   
   #if MAD_ACCELEROMETER_LOGGING
   Serial.print("Updating trigger angles to: ");
   Serial.print("Positive: "); Serial.print(my_settings.accelerometer_angle_positive);
-  Serial.print("Negative: "); Serial.println(my_settings.accelerometer_angle_negative);
+  Serial.print(",  Negative: "); Serial.println(my_settings.accelerometer_angle_negative);
   #endif
   
-  saveConfig();  
+  saveConfig();
+  delay(10);
 };
 
 /*
@@ -201,9 +210,9 @@ void logAdjustment(int side, float value) {
  */
 AccelerometerPosition positionForValue(float value) {
   
-  if ( value > 0.2 ) {
+  if ( value > my_settings.accelerometer_angle_positive ) {
     return AccelerometerPositionSide0Top;
-  } else if ( value < -0.2) {
+  } else if ( value < my_settings.accelerometer_angle_negative ) {
     return AccelerometerPositionSide1Top;
   }
   
