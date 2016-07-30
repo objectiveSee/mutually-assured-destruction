@@ -65,10 +65,9 @@ void saveConfig() {
     EEPROM.write(CONFIG_START + t, *((char*)&my_settings + t));
   }
   #if MAD_SETTINGS_LOGGING
-  Serial.println("Config updated with new values");
+  Serial.print("[SETTINGS] Saved new values. Angles ="); Serial.print(my_settings.accelerometer_angle_positive); 
+  Serial.print(", "); Serial.print(my_settings.accelerometer_angle_negative); 
+  Serial.println(".");
   #endif
 }
-
-
-
 
