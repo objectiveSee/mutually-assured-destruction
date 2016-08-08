@@ -44,6 +44,7 @@ void Relay::on()
 }
 
 void Relay::clearPattern() {
+  // DONT CALL Serial.print() from here, as this is expected to be called prior to Serial being configured.
   pattern_current = 0;
   pattern_length = 0;
   pattern_time_start = 0;
@@ -52,6 +53,7 @@ void Relay::clearPattern() {
 
 void Relay::off()
 {
+  // DONT CALL Serial.print() from here, as this is expected to be called prior to Serial being configured.
   if ( run ) {
     run = false;
     last_changed = millis();

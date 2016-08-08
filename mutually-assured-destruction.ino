@@ -65,14 +65,14 @@ const unsigned char * current_burst_pattern();
  */
 void setup() {
 
-	Serial.begin(9600);     // Begin serial
   relay_setup();          // call before delay because relays are active low so we want to set to be HIGH as soon as possible
+	Serial.begin(9600);     // Begin serial
 
   LOGN(F("It's a MAD World!"));
   
   blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
   
-  loadConfig(); // load important values about angles and other app settings that need to persist
+  loadConfig();           // load important values about angles and other app settings that need to persist
 
   LOGN(F("Begin Accelerometer Setup"));
   delay(100);
@@ -82,6 +82,7 @@ void setup() {
   accelerometer->setup();
 
   // Wireless configure
+  LOGN(F("Begin Wireless Setup"));
   wireless_setup();
 
   // Unused LEDs setup as output LEDs
@@ -102,7 +103,6 @@ void setup() {
 void loop() {
   
   // Must call loop() prior to using accelerometer objects to ensure they have updated themselves internally
-  //  Serial.println(F("loop"));
   accelerometer->loop();
   // accelerometer->log();
 
@@ -119,12 +119,11 @@ void loop() {
   }
 
 
-  // Check for Serial input commands
-  // TODO: specify Serial
-  if ( serial_input_enabled ) {
+  if ( serial_input_enabled ) {             // Check for Serial input commands
+    // TODO: specify which Serial is being used here
     byte incomingByte;
     bool hadData = false;
-    while (Serial.available() > 0) {    // read the entire serial, and only process the last command
+    while (Serial.available() > 0) {        // read the entire serial, and only process the last command
       incomingByte = Serial.read();
   #if MAD_MAIN_LOGGING
       Serial.print("Read a byte: "); Serial.println(incomingByte, HEX);
@@ -134,15 +133,13 @@ void loop() {
     if ( hadData ) {
       cmd_handle_from_serial(incomingByte);
     }
-  }
-
-
-  // Check for wireless commands. Note: Interrupt pin is not connected on the SeeSaw Rev1.0 board.
-  if ( wireless_input_enabled ) {
+    
+  } else if ( wireless_input_enabled ) {    // Check for wireless commands. 
+    // Note: Interrupt pin is not connected on the SeeSaw Rev1.0 board.
 
     // Finish sending first
     bool wasSending = false;
-    while (Mirf.isSending()) {
+    while (Mirf.isSending()) {  // TODO: add timeout?
       wasSending = true;
     }
     if ( wasSending ) {
@@ -193,7 +190,7 @@ void loop() {
 
 
 /*
- * Passes a byte from Serial "API" into the command handlers
+ * Passes a command from Serial "API" into the command handlers
  */
 void cmd_handle_from_serial(byte commandByte ) {
   switch(commandByte) {
@@ -208,7 +205,7 @@ void cmd_handle_from_serial(byte commandByte ) {
 }
 
 /*
- * Passes a byte from Wireless "API" into the command handlers
+ * Passes a command from Wireless "API" into the command handlers
  *  Byte 0: Header (0x55)
  *  Byte 1: Header 2 (0xAA) or Remote ID
  *  Byte 2: Address/Command byte
@@ -250,16 +247,6 @@ void cmd_save_current_seesaw_angle() {
   flashUnusedLEDsBlocking();
 }
 
-void flashUnusedLEDsBlocking() {
-  // Pins are active low
-  digitalWrite(UNUSED_RELAY_PIN_0, LOW);
-  digitalWrite(UNUSED_RELAY_PIN_1, LOW);
-  delay(2000);
-  digitalWrite(UNUSED_RELAY_PIN_0, HIGH);
-  digitalWrite(UNUSED_RELAY_PIN_1, HIGH);
-}
-
-
 /*
  * Does a default poof pattern on 1 or both of the poofers. Uses a bitmask to specify which ones to poof.
  * Values for `which`:
@@ -272,7 +259,7 @@ void cmd_poof(byte which) {
   // Just logging
   LOG(F("Handling Command: Poof "));
   if (( which & 0x01) && (which & 0x02)) {
-    LOGN(F("Both"));
+    LOGN(F("Both 0x03"));
   } else if ( which & 0x01 ) {
     LOGN(F("LEFT 0x01"));
   } else if ( which & 0x02 ) {
@@ -287,7 +274,7 @@ void cmd_poof(byte which) {
     r1->setOnWithPattern(SINGLE_BUTTON_PRESS);    
   }
 
-  // Ok to skip if this function is called from loop().
+  // Ok to skip since this function is called from loop().
   // --- Call loop so the relays update internally
 //  r0->loop();
 //  r1->loop();
@@ -300,6 +287,7 @@ void cmd_poof(byte which) {
  * Setup the Relay objects
  */
 void relay_setup() {
+  // DONT CALL Serial.print() from here, as this is expected to be called prior to Serial being configured.
 	r0 = new Relay(RELAY_0_PIN);
 	r1 = new Relay(RELAY_1_PIN);
   r0->clearPattern();
@@ -384,4 +372,18 @@ void blinkLEDOnBootup() {
     digitalWrite(LED, LOW);
     delay(500);
   }
+}
+
+/**
+ * Used for debugging, we have two PCB LEDs that are not being used.
+ */
+void flashUnusedLEDsBlocking() {
+#ifdef MAD_USE_UNUSED_LEDS_FOR_STATUS
+  // Pins are active low
+  digitalWrite(UNUSED_RELAY_PIN_0, LOW);
+  digitalWrite(UNUSED_RELAY_PIN_1, LOW);
+  delay(2000);
+  digitalWrite(UNUSED_RELAY_PIN_0, HIGH);
+  digitalWrite(UNUSED_RELAY_PIN_1, HIGH);
+#endif
 }
