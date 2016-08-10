@@ -24,7 +24,7 @@
 
 #define MAD_MAIN_LOGGING                  1
 #define MAD_ACCELEROMETER_LOGGING         1
-#define MAD_ACCELEROMETER_LOGGING_VERBOSE 1
+#define MAD_ACCELEROMETER_LOGGING_VERBOSE 0
 #define MAD_BUTTON_LOGGING                0
 #define MAD_RELAY_LOGGING                 1
 #define MAD_SETTINGS_LOGGING              1

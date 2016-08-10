@@ -145,7 +145,9 @@ void loop() {
       cmd_handle_from_serial(incomingByte);
     }
 
-  } else if ( wireless_input_enabled ) {    // Check for wireless commands.
+  }
+  
+  if ( wireless_input_enabled ) {    // Check for wireless commands.
     // Note: Interrupt pin is not connected on the SeeSaw Rev1.0 board.
 
     // Finish sending first
@@ -231,7 +233,8 @@ void cmd_handle_from_serial(byte commandByte ) {
 */
 void cmd_handle_from_wireless(byte * commandRcvd ) {
 
-  // TODO: do we respect the mode here if in a mode where the Lighting contorller sends poofs only?
+  // we respect the mode here if in a mode where the Lighting contorller sends poofs only. 
+  // This could be changed. Remote beats all ;)
 
   if ( commandRcvd[0] != 0x55 ) {
     LOGN("Wireless error: Header is not 0x55");
@@ -242,7 +245,7 @@ void cmd_handle_from_wireless(byte * commandRcvd ) {
   }
 #if MAD_MAIN_LOGGING
   Serial.print("Wireless received 0x"); Serial.print(commandRcvd[2], HEX);
-  Serial.print(" from remote ID# 0x"); Serial.print(commandRcvd[1], HEX);
+  Serial.print(" from remote ID# 0x"); Serial.println(commandRcvd[1], HEX);
 #endif
 
   switch (commandRcvd[2]) {
