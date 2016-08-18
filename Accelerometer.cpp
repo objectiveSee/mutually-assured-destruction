@@ -87,7 +87,7 @@ void Accelerometer::loop()
   sensors_event_t event;
   mma.getEvent(&event);
 
-  float acceleration = event.acceleration.x;
+  float acceleration = event.acceleration.y;
 //  #if MAD_ACCELEROMETER_LOGGING
 //  Serial.print(F("X=\t")); Serial.println(acceleration);
 //  #endif
