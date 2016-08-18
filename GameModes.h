@@ -18,6 +18,7 @@ byte serialCommandToReportModeChange(GameMode someMode);
 
 /**
  * Serial API commands
+ * Dont change these w/o syncing with Lighting controller as well!
  */
  
 // Report poofing (Outgoing)
@@ -44,7 +45,7 @@ byte serialCommandToReportModeChange(GameMode someMode);
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_LEFT      0x07
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_RIGHT     0x09
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_BOTH      0x08
-#define WIRELESS_API_COMMAND_SAVE_ANGLE             0x0A
+#define WIRELESS_API_COMMAND_SAVE_ANGLE             0x0A  // '*' Key on remote
 
 #define WIRELESS_API_COMMAND_MODE_CHANGE_NORMAL     0x04
 #define WIRELESS_API_COMMAND_MODE_CHANGE_LIGHTING   0x05

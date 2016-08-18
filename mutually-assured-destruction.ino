@@ -76,7 +76,9 @@ void setup() {
   LOGN(F("It's a MAD World!"));
 
   // configure the SlaveControllerSerial
-  SlaveSerial.begin(4800);
+  if ( serial_input_enabled ) {
+    SlaveSerial.begin(4800);
+  }
   
 
   blinkLEDOnBootup();     // Blink the LED to give some time to reset Teensy if needed
@@ -107,6 +109,10 @@ void setup() {
   } else {
     LOGN(F("Accelerometer setup failed."));
   }
+
+  // On boot up, send the mode
+  send_current_mode();
+  delay(100);
 }
 
 
@@ -167,10 +173,10 @@ void loop() {
     // TODO: Assumption of only receiving 1 payload at a time could be tested.
     while ( Mirf.dataReady()) {
 
-      LOGN("MIRF: Getting data");
+      LOGN("Wireless data received...");
       Mirf.getData(payload);
 #if MAD_MAIN_LOGGING
-      Serial.print("MIRF: Read a payload: ");
+      Serial.print("Wireless: Reading a payload: ");
       for ( byte i = 0; i < PAYLOAD_SIZE; i++) {
         Serial.print(payload[i], HEX);
       }
@@ -353,10 +359,12 @@ void cmd_poof(byte which) {
 void send_current_mode() {
 	byte cmd = serialCommandToReportModeChange(currentGameMode);
 	if ( cmd ) {
-#if MAD_MAIN_LOGGING
-		Serial.print("Reporting mode with command 0x"); Serial.print(cmd, HEX);
-#endif
-		SlaveSerial.write(cmd);
+    if ( serial_input_enabled ) {
+      #if MAD_MAIN_LOGGING
+  		Serial.print("Reporting mode with command 0x"); Serial.println(cmd, HEX);
+      #endif
+  		SlaveSerial.write(cmd);
+    }
 	}  
 }
 
@@ -381,11 +389,13 @@ void poof_triggered_by_angle(byte which) {
     
     if ( command ) {
 
-#if MAD_MAIN_LOGGING
-      Serial.print("Asking light controller to poof with command: 0x");
-      Serial.println(command, HEX);
-#endif
-      SlaveSerial.write(command);
+      if ( serial_input_enabled ) {
+        #if MAD_MAIN_LOGGING
+        Serial.print("Asking light controller to poof with command: 0x");
+        Serial.println(command, HEX);
+        #endif
+        SlaveSerial.write(command);
+      }
 
     } else {
 
