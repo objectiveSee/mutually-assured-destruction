@@ -29,8 +29,8 @@ byte serialCommandToReportModeChange(GameMode someMode);
 #define SERIAL_API_COMMAND_REQUEST_POOF_RIGHT   'S'
 #define SERIAL_API_COMMAND_REQUEST_POOF_BOTH    'D'
 
-#define SERIAL_API_COMMAND_BRIGHTNESS_UP        'F'
-#define SERIAL_API_COMMAND_BRIGHTNESS_DOWN      'G'
+#define SERIAL_API_COMMAND_DIM                  '*'
+#define SERIAL_API_COMMAND_BRIGHT               '#'
 
 // Trigger poofing (Incoming)
 #define SERIAL_API_COMMAND_TRIGGER_POOF_LEFT    'Q'
@@ -56,6 +56,7 @@ byte serialCommandToReportModeChange(GameMode someMode);
 
 #define WIRELESS_API_COMMAND_MODE_CHANGE_NORMAL     0x04
 #define WIRELESS_API_COMMAND_MODE_CHANGE_LIGHTING   0x05
+
 
 #define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_UP     0x03  // sent through to Lighting controller
 #define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_DOWN   0x06  // sent through to Lighting controller

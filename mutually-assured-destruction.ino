@@ -291,7 +291,7 @@ void cmd_handle_from_wireless(byte * commandRcvd ) {
  * Inform the lighting controller of a brightness change
  */
 void cmd_send_brightness_change(bool isUp) {
-  byte cmd = isUp ? SERIAL_API_COMMAND_BRIGHTNESS_UP : SERIAL_API_COMMAND_BRIGHTNESS_DOWN;
+  byte cmd = isUp ? SERIAL_API_COMMAND_BRIGHT : SERIAL_API_COMMAND_DIM;
   if ( serial_input_enabled ) {
       #if MAD_MAIN_LOGGING
       Serial.print("Reporting brightness change with command 0x"); Serial.println(cmd, HEX);
