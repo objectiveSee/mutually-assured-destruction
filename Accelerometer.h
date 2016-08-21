@@ -23,6 +23,7 @@ public:
     bool position_changed;  // set for 1 cycle of loop() only. Better check it fool!
     bool working;
 
+
     void storeCurrentAngleForSide();
 
 //    ~Accelerometer();
@@ -35,6 +36,7 @@ private:
     unsigned long last_sample;
     unsigned long last_position_change;
     unsigned long last_sample_with_same_position;
+    AccelerometerPosition positionForValue(float value);
 };
 
 #endif /* defined(__Accelerometer__) */

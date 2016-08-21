@@ -10,13 +10,12 @@
 /*
  * Amount of time seesaw must be at a position for it to be registered. Sort of like debouncing a button.
  */
-#define ACCELEROMETER_AT_TOP_DURATION 60 // in ms
+#define ACCELEROMETER_AT_TOP_DURATION 0 // in ms
 
 /*
  * Function Declarations
  */
 float averageMeasuresCalc(float * measures );
-AccelerometerPosition positionForValue(float value);
 void printPosition(AccelerometerPosition position, bool newLine);
 void logAdjustment(int side, float value);
 
@@ -92,10 +91,11 @@ void Accelerometer::loop()
 //  Serial.print(F("X=\t")); Serial.println(acceleration);
 //  #endif
 
+  // Circular buffer used to keep track of the history of readings
   last_measures_index = (last_measures_index+1)%ACCELEROMETER_COUNT_MESASURES;
   last_measures[last_measures_index] = acceleration;
 
-  // update variables
+  // update moving average of the positions
   average_measures = averageMeasuresCalc(&last_measures[0]);
   
   AccelerometerPosition currentPosition = positionForValue(average_measures);
@@ -196,6 +196,39 @@ void Accelerometer::storeCurrentAngleForSide() {
   delay(10);
 };
 
+/**
+ * Returns the `AccelerometerPosition` corresponding to the given input angle.
+ */
+const static float kHisterisisFactor = 0.1;
+
+AccelerometerPosition Accelerometer::positionForValue(float value) {
+
+  // hysterisis based on current angle.
+  float angle_positive, angle_negative;
+
+  if ( position == AccelerometerPositionNone ) {
+
+    angle_positive = my_settings.accelerometer_angle_positive;
+    angle_negative = my_settings.accelerometer_angle_negative;
+  
+  } else {
+    
+    angle_positive = my_settings.accelerometer_angle_positive - kHisterisisFactor;
+    angle_negative = my_settings.accelerometer_angle_negative + kHisterisisFactor;
+    
+  }
+
+  
+  if ( value > angle_positive) {
+    return AccelerometerPositionSide0Top;
+  } else if ( value < angle_negative) {
+    return AccelerometerPositionSide1Top;
+  }
+  
+  return AccelerometerPositionNone;
+}
+
+
 /*
  * C helpers
  */
@@ -203,20 +236,6 @@ void logAdjustment(int side, float value) {
 #if MAD_ACCELEROMETER_LOGGING
   Serial.print(F("Adjustment: Side ")); Serial.print(side); Serial.print(F(" = ")); Serial.println(value);
 #endif
-}
-
-/**
- * Returns the `AccelerometerPosition` corresponding to the given input angle.
- */
-AccelerometerPosition positionForValue(float value) {
-  
-  if ( value > my_settings.accelerometer_angle_positive ) {
-    return AccelerometerPositionSide0Top;
-  } else if ( value < my_settings.accelerometer_angle_negative ) {
-    return AccelerometerPositionSide1Top;
-  }
-  
-  return AccelerometerPositionNone;
 }
 
 /*
