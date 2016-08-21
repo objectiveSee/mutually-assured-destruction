@@ -113,6 +113,8 @@ void setup() {
   // On boot up, send the mode
   send_current_mode();
   delay(100);
+
+  LOGN(F("Setup complete"));
 }
 
 
@@ -273,10 +275,29 @@ void cmd_handle_from_wireless(byte * commandRcvd ) {
     case WIRELESS_API_COMMAND_MODE_CHANGE_LIGHTING:
       cmd_change_mode(GameModeLighting);
       break;
+    case WIRELESS_API_COMMAND_MODE_BRIGHTNESS_UP:
+      cmd_send_brightness_change(true);
+      break;
+    case WIRELESS_API_COMMAND_MODE_BRIGHTNESS_DOWN:
+      cmd_send_brightness_change(false);
+      break;
     default:
       LOGN("Unsupported command from wireless.");
       break;
   }
+}
+
+/**
+ * Inform the lighting controller of a brightness change
+ */
+void cmd_send_brightness_change(bool isUp) {
+  byte cmd = isUp ? SERIAL_API_COMMAND_BRIGHTNESS_UP : SERIAL_API_COMMAND_BRIGHTNESS_DOWN;
+  if ( serial_input_enabled ) {
+      #if MAD_MAIN_LOGGING
+      Serial.print("Reporting brightness change with command 0x"); Serial.println(cmd, HEX);
+      #endif
+      SlaveSerial.write(cmd);
+  }  
 }
 
 /** 

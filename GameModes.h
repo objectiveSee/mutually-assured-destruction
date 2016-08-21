@@ -25,9 +25,12 @@ byte serialCommandToReportModeChange(GameMode someMode);
 #define SERIAL_API_COMMAND_REPORT_POOF_LEFT     'L'
 #define SERIAL_API_COMMAND_REPORT_POOF_RIGHT    'R'
 
- #define SERIAL_API_COMMAND_REQUEST_POOF_LEFT	'A'
+ #define SERIAL_API_COMMAND_REQUEST_POOF_LEFT	  'A'
 #define SERIAL_API_COMMAND_REQUEST_POOF_RIGHT   'S'
 #define SERIAL_API_COMMAND_REQUEST_POOF_BOTH    'D'
+
+#define SERIAL_API_COMMAND_BRIGHTNESS_UP        'F'
+#define SERIAL_API_COMMAND_BRIGHTNESS_DOWN      'G'
 
 // Trigger poofing (Incoming)
 #define SERIAL_API_COMMAND_TRIGGER_POOF_LEFT    'Q'
@@ -41,7 +44,11 @@ byte serialCommandToReportModeChange(GameMode someMode);
 
 /**
  * Wireless API Commands
+ * 0x11 and 0x22 are 1 and 2 buttons, the rest are
+ * just their ASCII value (eg. 3 is 0x03)
  */
+
+ 
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_LEFT      0x07
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_RIGHT     0x09
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_BOTH      0x08
@@ -50,6 +57,8 @@ byte serialCommandToReportModeChange(GameMode someMode);
 #define WIRELESS_API_COMMAND_MODE_CHANGE_NORMAL     0x04
 #define WIRELESS_API_COMMAND_MODE_CHANGE_LIGHTING   0x05
 
+#define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_UP     0x03  // sent through to Lighting controller
+#define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_DOWN   0x06  // sent through to Lighting controller
 
 #endif
 
