@@ -39,15 +39,12 @@
 */
 static Relay * r0 = 0;
 static Relay * r1 = 0;
-// static Button * button0 = 0;
-//static Button * button1 = 0;
 
 static Accelerometer * accelerometer = 0;
-//static boolean stopped = 0;
-static unsigned char burst_mode = 1;
+static unsigned char fire_pattern = 0;		// id of the current pattern
 
-static bool serial_input_enabled = true;
-static bool wireless_input_enabled = true;
+static bool serial_input_enabled = true;	// QA before setting to false
+static bool wireless_input_enabled = true;	// QA before setting to false
 
 // Serial port connected to the Lighting controller
 SoftwareSerial SlaveSerial(0, 1); // RX, TX
@@ -60,9 +57,7 @@ SoftwareSerial SlaveSerial(0, 1); // RX, TX
 */
 void relay_setup();
 void wireless_setup();
-const unsigned char * current_burst_pattern();
-//void loop_led();
-//void blink_led();
+const unsigned char * current_fire_pattern();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,14 +115,12 @@ void setup() {
 
 
 void loop() {
-
-  // Must call loop() prior to using accelerometer objects to ensure they have updated themselves internally
+  
+  // Must call loop() prior to using accelerometer to ensure it has updated itself internally
   accelerometer->loop();
-  // accelerometer->log();
 
   // look for transitions from NONE to SIDE0TOP or SIDE1TOP
-  if ( accelerometer->position_changed &&
-       accelerometer->last_position == AccelerometerPositionNone) {
+  if ( accelerometer->position_changed && accelerometer->last_position == AccelerometerPositionNone) {
 
     if ( accelerometer->position == AccelerometerPositionSide0Top ) {   // RED
       poof_triggered_by_angle(0x01);
@@ -164,7 +157,9 @@ void loop() {
       wasSending = true;
     }
     if ( wasSending ) {
-      delay(10);  // copied from library example. Adds a delay after sending for some reason, perhaps to let the data get pushed out fully
+      // copied from library example. Adds a delay after sending 
+      // for some reason, perhaps to let the data get pushed out fully
+      delay(10);  
     }
 
     // Check for new data
@@ -227,8 +222,6 @@ void cmd_handle_from_serial(byte commandByte ) {
       LOGN("Unsupported command from serial.");
       break;
   }
-
-//    case 'A': cmd_save_current_seesaw_angle(); break; // Wireless only command for now
 
 }
 
@@ -338,6 +331,13 @@ void cmd_save_current_seesaw_angle() {
   flashUnusedLEDsBlocking();
 }
 
+/**
+ * Changes the default fire pattern used when the seesaw is trigger to fire (e.g. by angle trigger)
+ */
+void cmd_change_fire_pattern() {
+  fire_pattern = (fire_pattern + 1)%COUNT_TRIGGER_FIRE_PATTERNS ;
+}
+
 /*
    Does a default poof pattern on 1 or both of the poofers. Uses a bitmask to specify which ones to poof.
    Values for `which`:
@@ -359,16 +359,71 @@ void cmd_poof(byte which) {
 
   // Handle the command
   if ( which & 0x01 ) {
-    r0->setOnWithPattern(SINGLE_BUTTON_PRESS);
+    r0->setOnWithPattern(current_fire_pattern());
   }
   if ( which & 0x02 ) {
-    r1->setOnWithPattern(SINGLE_BUTTON_PRESS);
+    r1->setOnWithPattern(current_fire_pattern());
   }
 
   // Ok to skip since this function is called from loop().
   // --- Call loop so the relays update internally
   //  r0->loop();
   //  r1->loop();
+}
+
+
+#define SpecialPoofShaveShortCut  0x00
+#define SpecialPoofJaws           0x01
+#define SpecialBeethoven          0x02
+#define SpecialRapidFireLeft      0x03
+#define SpecialRapidFireRight     0x04
+#define SpecialRapidFireBothQuick 0x05
+
+#define SpecialPoofCount          6
+
+/**
+ * Called each time special poof command is seen by wireless. 
+ * Responsible for cycling through the various patterns we have.
+ */
+void cmd_special_poof() {
+  static byte poofId = 0;
+  special_poof_with_type(poofId % SpecialPoofCount);
+  poofId++;
+}
+
+/**
+ * Expose interfaces to call some of the more complicated fire patterns.
+ */
+void special_poof_with_type(byte poof) {
+  
+  switch (poof) {
+    
+    case SpecialPoofShaveShortCut:
+      r0->setOnWithPattern(SHAVE_LEFT);
+      r1->setOnWithPattern(SHAVE_RIGHT);
+      break;
+    case SpecialPoofJaws:
+      r0->setOnWithPattern(JAWS_LEFT);
+      r1->setOnWithPattern(JAWS_RIGHT);
+      break;
+    case SpecialBeethoven:
+      r0->setOnWithPattern(BEETHOVEN_LEFT);
+      r1->setOnWithPattern(BEETHOVEN_RIGHT);
+      break;
+    case SpecialRapidFireLeft:
+      r0->setOnWithPattern(RAPID_BURST_100MS);
+      break;
+    case SpecialRapidFireRight:
+      r1->setOnWithPattern(RAPID_BURST_100MS);
+      break;
+    case SpecialRapidFireBothQuick:
+      r0->setOnWithPattern(RAPID_BURST_SUPERFAST);
+      r1->setOnWithPattern(RAPID_BURST_SUPERFAST);
+      break;
+    default:
+      Serial.println("Unrecognized special poof value");
+      break;    
+  }
 }
 
 
@@ -380,12 +435,12 @@ void cmd_poof(byte which) {
 void send_current_mode() {
 	byte cmd = serialCommandToReportModeChange(currentGameMode);
 	if ( cmd ) {
-    if ( serial_input_enabled ) {
-      #if MAD_MAIN_LOGGING
-  		Serial.print("Reporting mode with command 0x"); Serial.println(cmd, HEX);
-      #endif
-  		SlaveSerial.write(cmd);
-    }
+	    if ( serial_input_enabled ) {
+	      #if MAD_MAIN_LOGGING
+	  		Serial.print("Reporting mode with command 0x"); Serial.println(cmd, HEX);
+	      #endif
+	  		SlaveSerial.write(cmd);
+	    }
 	}  
 }
 
@@ -405,17 +460,18 @@ void poof_triggered_by_angle(byte which) {
     cmd_poof(which);
 
   } else if ( currentGameModeRequiresSerialAcknowledgementForPoof() ) {
+
     // send the command to the Serial controller indicating that we would like to poof
-    byte command = serialCommandToRequestPoofAcknowledgement(which);
+    byte serialCommand = serialCommandToRequestPoofAcknowledgement(which);
     
-    if ( command ) {
+    if ( serialCommand ) {
 
       if ( serial_input_enabled ) {
         #if MAD_MAIN_LOGGING
         Serial.print("Asking light controller to poof with command: 0x");
-        Serial.println(command, HEX);
+        Serial.println(serialCommand, HEX);
         #endif
-        SlaveSerial.write(command);
+        SlaveSerial.write(serialCommand);
       }
 
     } else {
@@ -480,25 +536,25 @@ void wireless_setup() {
 
 /*
    Returns the current pattern being used by default for poofs.
-   TODO: This isn't being used for allowing someone to change the default burst pattern.
 */
-const unsigned char * current_burst_pattern() {
+#define COUNT_TRIGGER_FIRE_PATTERNS 4;
+const unsigned char * current_fire_pattern() {
 
-  switch (burst_mode) {
-    case 1:
+  switch (fire_pattern) {
+    case 0:
       return SINGLE_BURST;
       break;
-    case 2:
+    case 1:
       return RAPID_BURST_40MS;
       break;
-    case 3:
+    case 2:
       return RAPID_BURST_100MS;
       break;
-    case 4:
+    case 3:
       return RAPID_BURST_SUPERFAST;
       break;
   }
-  return SINGLE_BURST;
+  return SINGLE_BURST;  // a good default
 }
 
 /**
@@ -528,3 +584,4 @@ void flashUnusedLEDsBlocking() {
   digitalWrite(UNUSED_RELAY_PIN_1, HIGH);
 #endif
 }
+

@@ -44,11 +44,7 @@ byte serialCommandToReportModeChange(GameMode someMode);
 
 /**
  * Wireless API Commands
- * 0x11 and 0x22 are 1 and 2 buttons, the rest are
- * just their ASCII value (eg. 3 is 0x03)
  */
-
- 
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_LEFT      0x07
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_RIGHT     0x09
 #define WIRELESS_API_COMMAND_TRIGGER_POOF_BOTH      0x08
@@ -57,6 +53,8 @@ byte serialCommandToReportModeChange(GameMode someMode);
 #define WIRELESS_API_COMMAND_MODE_CHANGE_NORMAL     0x04
 #define WIRELESS_API_COMMAND_MODE_CHANGE_LIGHTING   0x05
 
+#define WIRELESS_API_COMMAND_MODE_CHANGE_FIRE_PATTERN   0x01
+#define WIRELESS_API_COMMAND_MODE_SPECIAL_POOF      0x02
 
 #define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_UP     0x03  // sent through to Lighting controller
 #define WIRELESS_API_COMMAND_MODE_BRIGHTNESS_DOWN   0x06  // sent through to Lighting controller
