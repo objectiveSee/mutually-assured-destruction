@@ -9,6 +9,8 @@
 
 /*
  * Amount of time seesaw must be at a position for it to be registered. Sort of like debouncing a button.
+ * This has also been handled by a moving average and histerisis, so it has been disable by setting to 0ms.
+ * Can be re-enabled if it seems to solve a problem that histerisis doesn.t
  */
 #define ACCELEROMETER_AT_TOP_DURATION 0 // in ms
 
